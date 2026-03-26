@@ -1,184 +1,114 @@
 "use client";
 
+import { useRef } from "react";
 import { useGsapReveal } from "@/lib/gsapUtils";
-import { useRef, ReactNode } from "react";
+import { PageHero } from "@/components/pageHero";
+import { SectionHeading } from "@/components/sectionHeading";
 import { ArrowRight } from "lucide-react";
+import {
+  getAboutHero,
+  getOurStory,
+  getPhilosophy,
+  getApproach,
+} from "@/content/about";
 
 export default function AboutPage() {
-  const heroRef = useRef<HTMLDivElement>(null);
   const storyRef = useGsapReveal({ duration: 0.8, delay: 0.1 });
   const philosophyRef = useGsapReveal({ duration: 0.8, delay: 0.2, stagger: 0.1 });
   const approachRef = useGsapReveal({ duration: 0.8, delay: 0.3, stagger: 0.12 });
 
+  const hero = getAboutHero();
+  const story = getOurStory();
+  const philosophy = getPhilosophy();
+  const approach = getApproach();
+
   return (
-    <div className="w-full bg-black text-white min-h-screen overflow-x-hidden">
+    <div className="w-full bg-[#111318] text-white min-h-screen overflow-x-hidden">
       {/* Page Hero */}
-      <section
-        ref={heroRef}
-        className="relative flex items-center justify-center min-h-screen px-6 py-20 border-b border-zinc-800"
-      >
-        <div className="max-w-4xl text-center">
-          <h1 className="text-7xl md:text-8xl font-light tracking-tight leading-tight whitespace-pre-line">
-            About<br />The Mok Company
-          </h1>
-          <p className="mt-12 text-lg text-zinc-400 max-w-2xl mx-auto leading-relaxed">
-            Integrated solutions for ambitious companies. Management, marketing, innovation, and technology unified.
-          </p>
-        </div>
-      </section>
+      <PageHero title={hero.title} subtitle={hero.subtitle} />
 
       {/* Our Story Section */}
-      <section className="border-b border-zinc-800 py-24 px-6 md:px-12 lg:px-20">
+      <section className="border-b border-[#1F2733] py-24 px-6 md:px-12 lg:px-20">
         <div ref={storyRef} className="max-w-4xl mx-auto">
-          <div className="mb-12">
-            <h2 className="text-xs uppercase tracking-widest text-zinc-500 font-semibold">
-              Our Story
-            </h2>
-          </div>
+          <SectionHeading label="Our Story" title={story.title} />
 
           <div className="space-y-8">
-            <p className="text-2xl md:text-3xl font-light leading-relaxed text-white">
-              We started as a tech venture. We evolved because we had to.
+            <p className="text-2xl md:text-3xl font-light leading-relaxed text-white font-[family-name:var(--font-sora)]">
+              {story.description}
             </p>
-            <p className="text-lg text-zinc-300 leading-relaxed">
-              In a decade of building and advising across retail, finance, and automotive, we discovered a hard truth: most businesses don't need more consultants. They need one partner who speaks every language.
-            </p>
-            <p className="text-lg text-zinc-300 leading-relaxed">
-              Strategy without technology fails. Technology without strategy wastes millions. Marketing without execution is noise. Execution without vision is motion without purpose.
-            </p>
-            <div className="pt-8 border-t border-zinc-700">
-              <p className="text-xl text-white italic font-light">
-                We evolved because businesses don't need fragmented solutions. They need integrated growth engines.
-              </p>
-            </div>
+            {story.items && story.items.length > 0 && (
+              <div className="pt-8 border-t border-[#1F2733]">
+                <ul className="space-y-4">
+                  {story.items.map((item, idx) => (
+                    <li key={idx} className="flex items-start gap-3 text-lg text-[#8A9BB0] font-[family-name:var(--font-dm-sans)]">
+                      <ArrowRight className="w-5 h-5 mt-0.5 text-[#00C4AF] flex-shrink-0" />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         </div>
       </section>
 
       {/* Our Philosophy Section */}
-      <section className="border-b border-zinc-800 py-24 px-6 md:px-12 lg:px-20">
-        <div ref={philosophyRef} className="max-w-4xl mx-auto">
-          <div className="mb-12">
-            <h2 className="text-xs uppercase tracking-widest text-zinc-500 font-semibold">
-              Our Philosophy
-            </h2>
-          </div>
+      <section className="border-b border-[#1F2733] py-24 px-6 md:px-12 lg:px-20">
+        <div className="max-w-6xl mx-auto">
+          <SectionHeading label="Our Philosophy" title="Principles that guide everything we do" />
 
-          <div className="space-y-12">
-            {[
-              {
-                title: "Creativity must serve strategy",
-                description:
-                  "Beautiful ideas without direction are expensive mistakes. Every creative decision maps to business outcomes.",
-              },
-              {
-                title: "Strategy must lead to execution",
-                description:
-                  "A perfect plan that never ships is a waste of time. Execution is strategy made real. We build both.",
-              },
-              {
-                title: "Execution must drive measurable growth",
-                description:
-                  "If it doesn't move the needle, we change it. We obsess over metrics, not activities. Growth is the only measure.",
-              },
-            ].map((belief, idx) => (
-              <div key={idx} data-reveal className="border-l-2 border-zinc-700 pl-8 py-6">
-                <h3 className="text-xl font-semibold mb-3 text-white">{belief.title}</h3>
-                <p className="text-zinc-400 leading-relaxed">{belief.description}</p>
+          <div
+            ref={philosophyRef}
+            className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12"
+          >
+            {philosophy.map((item, idx) => (
+              <div
+                key={idx}
+                data-reveal
+                className="p-8 border border-[#1F2733] rounded-lg hover:border-[#00C4AF]/30 transition-colors bg-[#1A1D24]"
+              >
+                <h3 className="text-xl font-semibold mb-4 text-white font-[family-name:var(--font-sora)]">
+                  {item.title}
+                </h3>
+                <p className="text-[#8A9BB0] leading-relaxed font-[family-name:var(--font-dm-sans)]">
+                  {item.description}
+                </p>
               </div>
             ))}
-          </div>
-
-          <div className="mt-16 pt-12 border-t border-zinc-700">
-            <p className="text-sm uppercase tracking-widest text-zinc-500 font-semibold">
-              Anything less is incomplete.
-            </p>
           </div>
         </div>
       </section>
 
       {/* Our Approach Section */}
       <section className="py-24 px-6 md:px-12 lg:px-20">
-        <div ref={approachRef} className="max-w-7xl mx-auto">
-          <div className="mb-16">
-            <h2 className="text-xs uppercase tracking-widest text-zinc-500 font-semibold">
-              How We Work
-            </h2>
-            <h3 className="text-3xl md:text-4xl font-light mt-6 mb-8">
-              The Mok Approach
-            </h3>
-            <p className="text-lg text-zinc-400 max-w-2xl">
-              A deliberate four-phase process designed to move you from where you are to where you need to be.
-            </p>
-          </div>
+        <div className="max-w-6xl mx-auto">
+          <SectionHeading
+            label="How We Work"
+            title="The Mok Approach"
+            description="A deliberate process designed to move you from where you are to where you need to be."
+          />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
-            {[
-              {
-                number: "01",
-                title: "Discover",
-                description:
-                  "We immerse ourselves in your world. Deep analysis, market intelligence, competitive landscape, internal diagnosis. We ask the questions nobody else thinks to ask.",
-                items: [
-                  "Market & competitive analysis",
-                  "Brand positioning audit",
-                  "Internal capability review",
-                  "Stakeholder interviews",
-                ],
-              },
-              {
-                number: "02",
-                title: "Design",
-                description:
-                  "Insights become strategy. We architect your playbook: positioning, messaging, operational systems, technology roadmap. Clarity on what, how, and why.",
-                items: [
-                  "Strategic architecture",
-                  "Go-to-market framework",
-                  "Brand & messaging design",
-                  "Technology blueprint",
-                ],
-              },
-              {
-                number: "03",
-                title: "Deploy",
-                description:
-                  "Plans become motion. We execute end-to-end: activations, content, platforms, operations, training. Strategy in motion across every channel.",
-                items: [
-                  "Marketing activation",
-                  "Technology implementation",
-                  "Team enablement",
-                  "Launch management",
-                ],
-              },
-              {
-                number: "04",
-                title: "Dominate",
-                description:
-                  "Motion becomes mastery. We optimize, scale, and defend. You own the market position. We build systems for sustained competitive advantage.",
-                items: [
-                  "Performance optimization",
-                  "Scale & automation",
-                  "Continuous improvement",
-                  "Market leadership",
-                ],
-              },
-            ].map((phase, idx) => (
-              <div key={idx} data-reveal className="group">
+          <div
+            ref={approachRef}
+            className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12"
+          >
+            {approach.map((phase, idx) => (
+              <div
+                key={idx}
+                data-reveal
+                className="group"
+              >
                 <div className="mb-6">
-                  <div className="text-6xl font-light text-zinc-700 group-hover:text-zinc-600 transition-colors">
-                    {phase.number}
+                  <div className="text-6xl font-light text-[#1F2733] group-hover:text-[#00C4AF]/20 transition-colors font-[family-name:var(--font-sora)]">
+                    {phase.step}
                   </div>
                 </div>
-                <h4 className="text-2xl font-semibold mb-4 text-white">{phase.title}</h4>
-                <p className="text-zinc-400 leading-relaxed mb-6">{phase.description}</p>
-                <ul className="space-y-2">
-                  {phase.items.map((item, i) => (
-                    <li key={i} className="text-sm text-zinc-500 flex items-start gap-3">
-                      <ArrowRight className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                      <span>{item}</span>
-                    </li>
-                  ))}
-                </ul>
+                <h4 className="text-2xl font-semibold mb-4 text-white font-[family-name:var(--font-sora)]">
+                  {phase.title}
+                </h4>
+                <p className="text-[#8A9BB0] leading-relaxed font-[family-name:var(--font-dm-sans)]">
+                  {phase.description}
+                </p>
               </div>
             ))}
           </div>
@@ -186,17 +116,17 @@ export default function AboutPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="border-t border-zinc-800 py-16 px-6 md:px-12 lg:px-20 bg-zinc-900/50">
+      <section className="border-t border-[#1F2733] py-16 px-6 md:px-12 lg:px-20 bg-[#1A1D24]">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-light mb-6">
+          <h2 className="text-3xl md:text-4xl font-light mb-6 font-[family-name:var(--font-sora)]">
             Ready to build your growth engine?
           </h2>
-          <p className="text-lg text-zinc-400 mb-8">
-            Let's talk about what's possible for your business.
+          <p className="text-lg text-[#8A9BB0] mb-8 font-[family-name:var(--font-dm-sans)]">
+            Let us know how MOK can help transform your business.
           </p>
           <a
             href="/contact"
-            className="inline-flex items-center gap-2 px-8 py-4 bg-white text-black font-semibold hover:bg-zinc-100 transition-colors"
+            className="inline-flex items-center gap-2 px-8 py-4 bg-[#00C4AF] text-[#111318] font-semibold hover:bg-[#00C4AF]/90 transition-colors rounded-lg font-[family-name:var(--font-sora)]"
           >
             Start a Conversation
             <ArrowRight className="w-5 h-5" />

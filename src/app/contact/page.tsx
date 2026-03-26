@@ -1,125 +1,85 @@
-"use client"
+"use client";
 
-import { useState, FormEvent } from "react"
-import { ArrowUpRight, Mail, MapPin } from "lucide-react"
-import { PageHero } from "@/components/pageHero"
-import { useGsapReveal } from "@/lib/gsapUtils"
-
-const services = [
-  "Management Consultancy",
-  "Brand & Marketing",
-  "Innovation & Ventures",
-  "Technology & Development",
-  "Other",
-]
+import { useState, useRef } from "react";
+import { useGsapReveal } from "@/lib/gsapUtils";
+import { PageHero } from "@/components/pageHero";
+import { ArrowRight, Mail, MapPin } from "lucide-react";
+import { getSiteConfig } from "@/content/site";
 
 export default function ContactPage() {
-  const formRef = useGsapReveal()
+  const formRef = useGsapReveal({ duration: 0.8, delay: 0.1 });
   const [formData, setFormData] = useState({
     name: "",
     company: "",
     email: "",
     phone: "",
-    service: "Management Consultancy",
+    service: "",
     message: "",
-  })
-  const [submitted, setSubmitted] = useState(false)
+  });
+
+  const siteConfig = getSiteConfig();
+
+  const serviceOptions = [
+    "Management Consultancy",
+    "Brand & Marketing",
+    "Innovation & Ventures",
+    "Technology & Development",
+    "Other",
+  ];
 
   const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
-    const { name, value } = e.target
+    const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: value,
-    }))
-  }
+    }));
+  };
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-
-    // Basic validation
-    if (
-      !formData.name ||
-      !formData.email ||
-      !formData.message
-    ) {
-      alert("Please fill in all required fields.")
-      return
-    }
-
-    // Simulate form submission
-    console.log("Form submitted:", formData)
-    setSubmitted(true)
-
-    // Reset form after 2 seconds
-    setTimeout(() => {
-      setFormData({
-        name: "",
-        company: "",
-        email: "",
-        phone: "",
-        service: "Management Consultancy",
-        message: "",
-      })
-      setSubmitted(false)
-    }, 2000)
-  }
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log("Form submitted:", formData);
+  };
 
   return (
-    <main className="min-h-screen bg-black text-white">
+    <div className="w-full bg-[#111318] text-white min-h-screen overflow-x-hidden">
+      {/* Page Hero */}
       <PageHero
         title="Contact"
-        subtitle="Let's Build What's Next."
+        subtitle="Let us build what is next."
       />
 
-      <div className="px-6 py-24 md:px-8">
-        <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-12">
-          {/* Contact Form */}
-          <div
-            ref={formRef}
-            className="lg:col-span-2"
-          >
-            <div className="mb-8">
-              <h2 className="text-2xl font-semibold mb-2">Send us a Message</h2>
-              <p className="text-white/70">
-                Tell us about your challenge or opportunity. We'll respond within 24 hours.
-              </p>
-            </div>
+      {/* Contact Section */}
+      <section className="py-24 px-6 md:px-12 lg:px-20">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+            {/* Form */}
+            <div ref={formRef} data-reveal className="lg:col-span-2">
+              <h2 className="text-3xl font-semibold mb-8 text-white font-[family-name:var(--font-sora)]">
+                Start the Conversation
+              </h2>
 
-            {submitted ? (
-              <div className="p-8 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-center">
-                <p className="font-semibold mb-2">Message Sent Successfully</p>
-                <p className="text-sm">
-                  Thanks for reaching out. We'll be in touch shortly.
-                </p>
-              </div>
-            ) : (
-              <form
-                onSubmit={handleSubmit}
-                className="space-y-6"
-              >
+              <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Name */}
                 <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Full Name *
+                  <label className="block text-sm font-semibold text-white mb-3 font-[family-name:var(--font-sora)]">
+                    Your Name
                   </label>
                   <input
                     type="text"
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-white/40 focus:bg-white/10 focus:border-white/20 focus:outline-none transition-colors"
-                    placeholder="Your name"
                     required
+                    className="w-full px-4 py-3 bg-[#1A1D24] border border-[#1F2733] rounded-lg text-white placeholder-[#8A9BB0] focus:outline-none focus:border-[#00C4AF] focus:ring-1 focus:ring-[#00C4AF]/20 transition-colors font-[family-name:var(--font-dm-sans)]"
+                    placeholder="John Doe"
                   />
                 </div>
 
                 {/* Company */}
                 <div>
-                  <label className="block text-sm font-medium mb-2">
+                  <label className="block text-sm font-semibold text-white mb-3 font-[family-name:var(--font-sora)]">
                     Company
                   </label>
                   <input
@@ -127,60 +87,57 @@ export default function ContactPage() {
                     name="company"
                     value={formData.company}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-white/40 focus:bg-white/10 focus:border-white/20 focus:outline-none transition-colors"
-                    placeholder="Your company"
+                    className="w-full px-4 py-3 bg-[#1A1D24] border border-[#1F2733] rounded-lg text-white placeholder-[#8A9BB0] focus:outline-none focus:border-[#00C4AF] focus:ring-1 focus:ring-[#00C4AF]/20 transition-colors font-[family-name:var(--font-dm-sans)]"
+                    placeholder="Acme Corp"
                   />
                 </div>
 
-                {/* Email */}
-                <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Email *
-                  </label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-white/40 focus:bg-white/10 focus:border-white/20 focus:outline-none transition-colors"
-                    placeholder="your@email.com"
-                    required
-                  />
-                </div>
-
-                {/* Phone */}
-                <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Phone
-                  </label>
-                  <input
-                    type="tel"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-white/40 focus:bg-white/10 focus:border-white/20 focus:outline-none transition-colors"
-                    placeholder="+971 XX XXX XXXX"
-                  />
+                {/* Email and Phone */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-semibold text-white mb-3 font-[family-name:var(--font-sora)]">
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      required
+                      className="w-full px-4 py-3 bg-[#1A1D24] border border-[#1F2733] rounded-lg text-white placeholder-[#8A9BB0] focus:outline-none focus:border-[#00C4AF] focus:ring-1 focus:ring-[#00C4AF]/20 transition-colors font-[family-name:var(--font-dm-sans)]"
+                      placeholder="john@acme.com"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-white mb-3 font-[family-name:var(--font-sora)]">
+                      Phone
+                    </label>
+                    <input
+                      type="tel"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 bg-[#1A1D24] border border-[#1F2733] rounded-lg text-white placeholder-[#8A9BB0] focus:outline-none focus:border-[#00C4AF] focus:ring-1 focus:ring-[#00C4AF]/20 transition-colors font-[family-name:var(--font-dm-sans)]"
+                      placeholder="+971 50 000 0000"
+                    />
+                  </div>
                 </div>
 
                 {/* Service */}
                 <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Service Needed
+                  <label className="block text-sm font-semibold text-white mb-3 font-[family-name:var(--font-sora)]">
+                    What can we help with?
                   </label>
                   <select
                     name="service"
                     value={formData.service}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white focus:bg-white/10 focus:border-white/20 focus:outline-none transition-colors"
+                    className="w-full px-4 py-3 bg-[#1A1D24] border border-[#1F2733] rounded-lg text-white focus:outline-none focus:border-[#00C4AF] focus:ring-1 focus:ring-[#00C4AF]/20 transition-colors font-[family-name:var(--font-dm-sans)]"
                   >
-                    {services.map((service) => (
-                      <option
-                        key={service}
-                        value={service}
-                        className="bg-black"
-                      >
-                        {service}
+                    <option value="">Select a service area</option>
+                    {serviceOptions.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
                       </option>
                     ))}
                   </select>
@@ -188,73 +145,82 @@ export default function ContactPage() {
 
                 {/* Message */}
                 <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Message *
+                  <label className="block text-sm font-semibold text-white mb-3 font-[family-name:var(--font-sora)]">
+                    Message
                   </label>
                   <textarea
                     name="message"
                     value={formData.message}
                     onChange={handleChange}
                     rows={6}
-                    className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-white/40 focus:bg-white/10 focus:border-white/20 focus:outline-none transition-colors resize-none"
-                    placeholder="Tell us about your challenge..."
-                    required
+                    className="w-full px-4 py-3 bg-[#1A1D24] border border-[#1F2733] rounded-lg text-white placeholder-[#8A9BB0] focus:outline-none focus:border-[#00C4AF] focus:ring-1 focus:ring-[#00C4AF]/20 transition-colors resize-none font-[family-name:var(--font-dm-sans)]"
+                    placeholder="Tell us about your project and what you are looking to achieve..."
                   />
                 </div>
 
                 {/* Submit Button */}
                 <button
                   type="submit"
-                  className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-white text-black font-semibold rounded-full hover:bg-white/90 transition-colors"
+                  className="w-full px-8 py-4 bg-[#00C4AF] text-[#111318] font-semibold rounded-lg hover:bg-[#00C4AF]/90 transition-colors flex items-center justify-center gap-2 font-[family-name:var(--font-sora)]"
                 >
                   Start the Conversation
-                  <ArrowUpRight size={18} />
+                  <ArrowRight className="w-5 h-5" />
                 </button>
               </form>
-            )}
-          </div>
+            </div>
 
-          {/* Contact Information */}
-          <div className="lg:col-span-1">
-            <div className="sticky top-8">
-              <h3 className="text-xl font-semibold mb-8">Get in Touch</h3>
+            {/* Contact Info Sidebar */}
+            <div data-reveal className="lg:col-span-1">
+              <div className="sticky top-20">
+                <h3 className="text-2xl font-semibold mb-8 text-white font-[family-name:var(--font-sora)]">
+                  Get in Touch
+                </h3>
 
-              <div className="space-y-8">
-                {/* Email */}
-                <div className="flex gap-4">
-                  <Mail className="text-white/60 flex-shrink-0 mt-1" size={20} />
-                  <div>
-                    <p className="text-sm text-white/60 mb-2">Email</p>
-                    <a
-                      href="mailto:hello@themok.company"
-                      className="text-white font-medium hover:text-white/80 transition-colors"
-                    >
-                      hello@themok.company
-                    </a>
+                <div className="space-y-8">
+                  {/* Email */}
+                  <div className="flex items-start gap-4">
+                    <Mail className="w-6 h-6 text-[#00C4AF] flex-shrink-0 mt-1" />
+                    <div>
+                      <p className="text-sm text-[#8A9BB0] mb-2 font-[family-name:var(--font-dm-sans)]">
+                        Email
+                      </p>
+                      <a
+                        href={`mailto:${siteConfig.email}`}
+                        className="text-white hover:text-[#00C4AF] transition-colors font-semibold font-[family-name:var(--font-sora)]"
+                      >
+                        {siteConfig.email}
+                      </a>
+                    </div>
                   </div>
-                </div>
 
-                {/* Location */}
-                <div className="flex gap-4">
-                  <MapPin className="text-white/60 flex-shrink-0 mt-1" size={20} />
-                  <div>
-                    <p className="text-sm text-white/60 mb-2">Location</p>
-                    <p className="text-white font-medium">Dubai, UAE</p>
+                  {/* Location */}
+                  <div className="flex items-start gap-4">
+                    <MapPin className="w-6 h-6 text-[#00C4AF] flex-shrink-0 mt-1" />
+                    <div>
+                      <p className="text-sm text-[#8A9BB0] mb-2 font-[family-name:var(--font-dm-sans)]">
+                        Location
+                      </p>
+                      <p className="text-white font-semibold font-[family-name:var(--font-sora)]">
+                        {siteConfig.location}
+                      </p>
+                    </div>
                   </div>
-                </div>
 
-                {/* Hours */}
-                <div>
-                  <p className="text-sm text-white/60 mb-4">Response Time</p>
-                  <p className="text-white font-medium">
-                    We typically respond within 24 hours during business days.
-                  </p>
+                  {/* Response Time */}
+                  <div className="mt-12 p-6 border border-[#1F2733] rounded-lg bg-[#1A1D24]">
+                    <p className="text-sm text-[#8A9BB0] mb-2 font-[family-name:var(--font-dm-sans)]">
+                      Response Time
+                    </p>
+                    <p className="text-white font-semibold font-[family-name:var(--font-sora)]">
+                      Within 24 hours
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-    </main>
-  )
+      </section>
+    </div>
+  );
 }

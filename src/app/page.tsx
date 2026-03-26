@@ -11,6 +11,14 @@ import {
   ArrowUpRight,
   ArrowRight,
 } from 'lucide-react';
+import {
+  getHomeHero,
+  getHomeWhoWeAre,
+  getHomeArms,
+  getHomeWhyMok,
+  getHomeAudience,
+  getHomeCTA,
+} from '@/content/home';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -21,10 +29,11 @@ export default function Home() {
   const heroCTARef = useRef<HTMLDivElement>(null);
   const orbRef = useRef<HTMLDivElement>(null);
   const whoWeAreRef = useRef<HTMLDivElement>(null);
+  const whoWeAreItemsRef = useRef<(HTMLDivElement | null)[]>([]);
   const threeArmsRef = useRef<HTMLDivElement>(null);
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
   const whyMokRef = useRef<HTMLDivElement>(null);
-  const whyMokCardsRef = useRef<(HTMLDivElement | null)[]>([]);
+  const whyMokItemsRef = useRef<(HTMLDivElement | null)[]>([]);
   const whoWeWorkRef = useRef<HTMLDivElement>(null);
   const workWithItemsRef = useRef<(HTMLDivElement | null)[]>([]);
   const finalCtaRef = useRef<HTMLDivElement>(null);
@@ -33,10 +42,9 @@ export default function Home() {
     if (!containerRef.current) return;
 
     const ctx = gsap.context(() => {
-      // Hero Section Animations
       const heroTimeline = gsap.timeline();
 
-      // Staggered headline reveal
+      // Hero headline reveal
       if (heroHeadlineRef.current) {
         heroTimeline.fromTo(
           heroHeadlineRef.current,
@@ -54,7 +62,7 @@ export default function Home() {
         );
       }
 
-      // Subtext fade in
+      // Hero subtext fade in
       if (heroSubtextRef.current) {
         heroTimeline.fromTo(
           heroSubtextRef.current,
@@ -91,7 +99,7 @@ export default function Home() {
         );
       }
 
-      // Animated gradient orb
+      // Animated gradient orb background
       if (orbRef.current) {
         gsap.to(orbRef.current, {
           y: 30,
@@ -112,7 +120,7 @@ export default function Home() {
       // Who We Are section
       if (whoWeAreRef.current) {
         gsap.fromTo(
-          whoWeAreRef.current.querySelectorAll('h2, p, ul'),
+          whoWeAreRef.current.querySelector('h2'),
           {
             opacity: 0,
             y: 30,
@@ -121,16 +129,57 @@ export default function Home() {
             opacity: 1,
             y: 0,
             duration: 0.8,
-            stagger: 0.15,
             ease: 'power2.out',
             scrollTrigger: {
               trigger: whoWeAreRef.current,
               start: 'top 70%',
-              end: 'top 30%',
               toggleActions: 'play none none reverse',
             },
           }
         );
+
+        gsap.fromTo(
+          whoWeAreRef.current.querySelector('p'),
+          {
+            opacity: 0,
+            y: 20,
+          },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: whoWeAreRef.current,
+              start: 'top 70%',
+              toggleActions: 'play none none reverse',
+            },
+          }
+        );
+
+        whoWeAreItemsRef.current.forEach((item, index) => {
+          if (item) {
+            gsap.fromTo(
+              item,
+              {
+                opacity: 0,
+                x: -20,
+              },
+              {
+                opacity: 1,
+                x: 0,
+                duration: 0.6,
+                delay: index * 0.1,
+                ease: 'power2.out',
+                scrollTrigger: {
+                  trigger: whoWeAreRef.current,
+                  start: 'top 60%',
+                  toggleActions: 'play none none reverse',
+                },
+              }
+            );
+          }
+        });
       }
 
       // Three Arms section
@@ -154,8 +203,7 @@ export default function Home() {
           }
         );
 
-        // Cards stagger animation
-        cardsRef.current.forEach((card) => {
+        cardsRef.current.forEach((card, index) => {
           if (card) {
             gsap.fromTo(
               card,
@@ -167,6 +215,7 @@ export default function Home() {
                 opacity: 1,
                 y: 0,
                 duration: 0.8,
+                delay: index * 0.15,
                 ease: 'power2.out',
                 scrollTrigger: {
                   trigger: card,
@@ -218,11 +267,10 @@ export default function Home() {
           }
         );
 
-        // Why Mok cards animation
-        whyMokCardsRef.current.forEach((card, index) => {
-          if (card) {
+        whyMokItemsRef.current.forEach((item, index) => {
+          if (item) {
             gsap.fromTo(
-              card,
+              item,
               {
                 opacity: 0,
                 y: 40,
@@ -265,7 +313,6 @@ export default function Home() {
           }
         );
 
-        // Work with items animation
         workWithItemsRef.current.forEach((item) => {
           if (item) {
             gsap.fromTo(
@@ -317,29 +364,39 @@ export default function Home() {
     return () => ctx.revert();
   }, []);
 
+  const hero = getHomeHero();
+  const whoWeAre = getHomeWhoWeAre();
+  const arms = getHomeArms();
+  const whyMok = getHomeWhyMok();
+  const audience = getHomeAudience();
+  const cta = getHomeCTA();
+
   return (
-    <div ref={containerRef} className="bg-black text-white overflow-hidden">
+    <div
+      ref={containerRef}
+      className="bg-[#111318] text-white overflow-hidden font-[family-name:var(--font-dm-sans)]"
+    >
       {/* HERO SECTION */}
       <section className="relative min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 overflow-hidden">
         {/* Animated gradient orb background */}
         <div
           ref={orbRef}
-          className="absolute top-1/2 right-1/4 w-80 h-80 bg-gradient-to-br from-purple-600/20 to-blue-600/20 rounded-full blur-3xl pointer-events-none"
+          className="absolute top-1/2 right-1/4 w-80 h-80 bg-gradient-to-br from-[#00C4AF]/20 to-[#00A8FF]/20 rounded-full blur-3xl pointer-events-none"
         />
 
         <div className="relative z-10 max-w-4xl mx-auto text-center">
           <h1
             ref={heroHeadlineRef}
-            className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight leading-tight mb-6"
+            className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight leading-tight mb-6 font-[family-name:var(--font-sora)]"
           >
-            We Build What's Next.
+            {hero.title}
           </h1>
 
           <p
             ref={heroSubtextRef}
-            className="text-lg sm:text-xl text-white/70 max-w-2xl mx-auto mb-12"
+            className="text-lg sm:text-xl text-[#8A9BB0] max-w-2xl mx-auto mb-12"
           >
-            Strategic consultancy. Marketing innovation. Technology execution. All under one roof.
+            {hero.subtitle}
           </p>
 
           <div
@@ -347,18 +404,18 @@ export default function Home() {
             className="flex flex-col sm:flex-row gap-4 justify-center items-center"
           >
             <Link
-              href="/our-work"
-              className="inline-flex items-center gap-2 px-8 py-3 bg-white text-black rounded-lg font-semibold hover:bg-white/90 transition-colors duration-300 cursor-pointer"
+              href={hero.ctas?.[0]?.href ?? "/contact"}
+              className="inline-flex items-center gap-2 px-8 py-3 bg-[#00C4AF] text-[#111318] rounded-lg font-semibold hover:bg-[#00C4AF]/90 transition-colors duration-300"
             >
-              Explore Our Work
+              {hero.ctas?.[0].label}
               <ArrowUpRight size={18} />
             </Link>
 
             <Link
-              href="/contact"
-              className="inline-flex items-center gap-2 px-8 py-3 border border-white/30 rounded-lg font-semibold hover:bg-white/10 transition-colors duration-300 cursor-pointer"
+              href={hero.ctas?.[1]?.href ?? "/our-work"}
+              className="inline-flex items-center gap-2 px-8 py-3 border border-[#1F2733] rounded-lg font-semibold hover:bg-[#1A1D24] transition-colors duration-300"
             >
-              Start a Conversation
+              {hero.ctas?.[1].label}
               <ArrowRight size={18} />
             </Link>
           </div>
@@ -370,35 +427,27 @@ export default function Home() {
         ref={whoWeAreRef}
         className="py-32 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto"
       >
-        <h2 className="text-4xl sm:text-5xl font-bold tracking-tight mb-8">
-          Strategy Without Execution Is Just Theory.
+        <h2 className="text-4xl sm:text-5xl font-bold tracking-tight mb-8 font-[family-name:var(--font-sora)]">
+          {whoWeAre.title}
         </h2>
 
-        <p className="text-lg text-white/70 mb-8 max-w-3xl">
-          The Mok Company is a 360 degree consultancy built for the ambitious.
-          We combine strategic clarity with operational discipline to drive real,
-          measurable transformation. We don't just advise. We build. We implement.
-          We scale.
+        <p className="text-lg text-[#8A9BB0] mb-12 max-w-3xl leading-relaxed">
+          {whoWeAre.description}
         </p>
 
-        <ul className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <li className="text-lg text-white/80 flex items-start gap-3">
-            <span className="text-white font-bold mr-2">•</span>
-            <span>Strategic clarity</span>
-          </li>
-          <li className="text-lg text-white/80 flex items-start gap-3">
-            <span className="text-white font-bold mr-2">•</span>
-            <span>Creative thinking</span>
-          </li>
-          <li className="text-lg text-white/80 flex items-start gap-3">
-            <span className="text-white font-bold mr-2">•</span>
-            <span>Marketing innovation</span>
-          </li>
-          <li className="text-lg text-white/80 flex items-start gap-3">
-            <span className="text-white font-bold mr-2">•</span>
-            <span>Operational execution</span>
-          </li>
-        </ul>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+          {whoWeAre?.items?.map((item, index) => (
+            <div
+              key={index}
+              ref={(el) => {
+                if (el) whoWeAreItemsRef.current[index] = el;
+              }}
+              className="pl-6 border-l-2 border-[#00C4AF]"
+            >
+              <p className="text-lg text-white">{item}</p>
+            </div>
+          ))}
+        </div>
       </section>
 
       {/* THREE ARMS SECTION */}
@@ -406,12 +455,12 @@ export default function Home() {
         ref={threeArmsRef}
         className="py-32 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto"
       >
-        <h2 className="text-4xl sm:text-5xl font-bold tracking-tight mb-4 text-center">
-          Built for Complexity. Designed for Growth.
+        <h2 className="text-4xl sm:text-5xl font-bold tracking-tight mb-4 text-center font-[family-name:var(--font-sora)]">
+          {arms.title}
         </h2>
 
-        <p className="text-lg text-white/60 text-center mb-16 max-w-2xl mx-auto">
-          Three specialized divisions working in concert to solve every challenge.
+        <p className="text-lg text-[#8A9BB0] text-center mb-16 max-w-2xl mx-auto">
+          {arms.description}
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -420,17 +469,22 @@ export default function Home() {
             ref={(el) => {
               if (el) cardsRef.current[0] = el;
             }}
-            className="p-8 rounded-xl border border-white/10 hover:border-white/20 bg-white/5 hover:bg-white/10 transition-all duration-300 cursor-pointer"
+            className="p-8 rounded-xl border-t-2 border-t-[#00C4AF] border border-[#1F2733] bg-[#1A1D24] hover:border-[#00C4AF] transition-all duration-300"
           >
             <div className="mb-6">
-              <Brain size={40} className="text-white" />
+              <Brain size={40} className="text-[#00C4AF]" />
             </div>
-            <h3 className="text-2xl font-bold mb-3">
+            <h3 className="text-2xl font-bold mb-3 font-[family-name:var(--font-sora)]">
               The Mok Management
             </h3>
-            <p className="text-white/70">
+            <p className="text-[#8A9BB0] mb-4">
               360 Management & Marketing Consultancy
             </p>
+            <ul className="space-y-2 text-sm text-[#8A9BB0]">
+              <li>Strategic planning</li>
+              <li>Brand development</li>
+              <li>Market research</li>
+            </ul>
           </div>
 
           {/* Card 2: Innovations */}
@@ -438,17 +492,22 @@ export default function Home() {
             ref={(el) => {
               if (el) cardsRef.current[1] = el;
             }}
-            className="p-8 rounded-xl border border-white/10 hover:border-white/20 bg-white/5 hover:bg-white/10 transition-all duration-300 cursor-pointer"
+            className="p-8 rounded-xl border-t-2 border-t-[#00C4AF] border border-[#1F2733] bg-[#1A1D24] hover:border-[#00C4AF] transition-all duration-300"
           >
             <div className="mb-6">
-              <Rocket size={40} className="text-white" />
+              <Rocket size={40} className="text-[#00C4AF]" />
             </div>
-            <h3 className="text-2xl font-bold mb-3">
+            <h3 className="text-2xl font-bold mb-3 font-[family-name:var(--font-sora)]">
               The Mok Innovations
             </h3>
-            <p className="text-white/70">
+            <p className="text-[#8A9BB0] mb-4">
               Venture & Innovation Lab
             </p>
+            <ul className="space-y-2 text-sm text-[#8A9BB0]">
+              <li>AI solutions</li>
+              <li>Product development</li>
+              <li>Market innovation</li>
+            </ul>
           </div>
 
           {/* Card 3: Technologies */}
@@ -456,17 +515,22 @@ export default function Home() {
             ref={(el) => {
               if (el) cardsRef.current[2] = el;
             }}
-            className="p-8 rounded-xl border border-white/10 hover:border-white/20 bg-white/5 hover:bg-white/10 transition-all duration-300 cursor-pointer"
+            className="p-8 rounded-xl border-t-2 border-t-[#00C4AF] border border-[#1F2733] bg-[#1A1D24] hover:border-[#00C4AF] transition-all duration-300"
           >
             <div className="mb-6">
-              <Cog size={40} className="text-white" />
+              <Cog size={40} className="text-[#00C4AF]" />
             </div>
-            <h3 className="text-2xl font-bold mb-3">
+            <h3 className="text-2xl font-bold mb-3 font-[family-name:var(--font-sora)]">
               The Mok Technologies
             </h3>
-            <p className="text-white/70">
+            <p className="text-[#8A9BB0] mb-4">
               Digital & Systems Execution
             </p>
+            <ul className="space-y-2 text-sm text-[#8A9BB0]">
+              <li>Web development</li>
+              <li>App development</li>
+              <li>Infrastructure</li>
+            </ul>
           </div>
         </div>
       </section>
@@ -476,55 +540,36 @@ export default function Home() {
         ref={whyMokRef}
         className="py-32 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto"
       >
-        <h2 className="text-4xl sm:text-5xl font-bold tracking-tight mb-16 text-center">
-          Built Different.
+        <h2 className="text-4xl sm:text-5xl font-bold tracking-tight mb-4 text-center font-[family-name:var(--font-sora)]">
+          {whyMok.title}
         </h2>
 
-        <p className="text-lg text-white/70 text-center mb-16 max-w-3xl mx-auto">
-          Most consultancies advise. Few execute. Even fewer build with their
-          clients as true partners. We believe the work matters only when it
-          moves the needle.
+        <p className="text-lg text-[#8A9BB0] text-center mb-16 max-w-3xl mx-auto">
+          {whyMok.description}
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div
-            ref={(el) => {
-              if (el) whyMokCardsRef.current[0] = el;
-            }}
-            className="p-8 rounded-xl bg-white/5 border border-white/10"
-          >
-            <h3 className="text-2xl font-bold mb-4">Creators at Heart</h3>
-            <p className="text-white/70">
-              We don't just think. We design, build, and ship. Every strategy
-              comes with execution embedded.
-            </p>
-          </div>
-
-          <div
-            ref={(el) => {
-              if (el) whyMokCardsRef.current[1] = el;
-            }}
-            className="p-8 rounded-xl bg-white/5 border border-white/10"
-          >
-            <h3 className="text-2xl font-bold mb-4">Operators by Discipline</h3>
-            <p className="text-white/70">
-              We understand constraints, timelines, and ROI. We move fast without
-              breaking things.
-            </p>
-          </div>
-
-          <div
-            ref={(el) => {
-              if (el) whyMokCardsRef.current[2] = el;
-            }}
-            className="p-8 rounded-xl bg-white/5 border border-white/10"
-          >
-            <h3 className="text-2xl font-bold mb-4">Partners by Commitment</h3>
-            <p className="text-white/70">
-              Your success is our success. We're invested in your growth and
-              accountable for results.
-            </p>
-          </div>
+          {whyMok?.items?.map((item, index) => (
+            <div
+              key={index}
+              ref={(el) => {
+                if (el) whyMokItemsRef.current[index] = el;
+              }}
+              className="p-8 rounded-xl bg-[#1A1D24] border border-[#1F2733]"
+            >
+              <h3 className="text-2xl font-bold mb-4 font-[family-name:var(--font-sora)]">
+                {item}
+              </h3>
+              <p className="text-[#8A9BB0]">
+                {index === 0 &&
+                  "We design, build, and ship. Strategy comes with execution embedded."}
+                {index === 1 &&
+                  "We understand constraints, timelines, and ROI. We move fast without breaking things."}
+                {index === 2 &&
+                  "Your success is our success. We're invested in your growth and accountable for results."}
+              </p>
+            </div>
+          ))}
         </div>
       </section>
 
@@ -533,28 +578,25 @@ export default function Home() {
         ref={whoWeWorkRef}
         className="py-32 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto"
       >
-        <h2 className="text-4xl sm:text-5xl font-bold tracking-tight mb-16 text-center">
-          For the Ambitious.
+        <h2 className="text-4xl sm:text-5xl font-bold tracking-tight mb-16 text-center font-[family-name:var(--font-sora)]">
+          {audience.title}
         </h2>
 
+        <p className="text-lg text-[#8A9BB0] text-center mb-16 max-w-3xl mx-auto">
+          {audience.description}
+        </p>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {[
-            'Scaling startups ready to break into new markets',
-            'Established corporates navigating digital transformation',
-            'Investment firms seeking operational excellence',
-            'Multinationals entering emerging markets',
-          ].map((item, index) => (
+          {audience?.items?.map((item, index) => (
             <div
               key={index}
               ref={(el) => {
                 if (el) workWithItemsRef.current[index] = el;
               }}
-              className="p-8 rounded-xl border border-white/10 bg-white/5 flex items-center gap-4"
+              className="flex items-start gap-4"
             >
-              <div className="text-2xl font-bold text-white/40 flex-shrink-0">
-                {String(index + 1).padStart(2, '0')}
-              </div>
-              <p className="text-lg text-white/80">{item}</p>
+              <span className="text-[#00C4AF] font-bold text-xl mt-1">-</span>
+              <p className="text-lg text-white pt-1">{item}</p>
             </div>
           ))}
         </div>
@@ -563,22 +605,21 @@ export default function Home() {
       {/* FINAL CTA SECTION */}
       <section
         ref={finalCtaRef}
-        className="py-32 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto text-center border-t border-white/10"
+        className="py-32 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto text-center border-t border-[#1F2733]"
       >
-        <h2 className="text-4xl sm:text-5xl font-bold tracking-tight mb-6">
-          Ready to Build What's Next?
+        <h2 className="text-4xl sm:text-5xl font-bold tracking-tight mb-6 font-[family-name:var(--font-sora)]">
+          {cta.title}
         </h2>
 
-        <p className="text-lg text-white/70 mb-12 max-w-2xl mx-auto">
-          Let's talk about your ambitions, your challenges, and how we can help
-          you move faster.
+        <p className="text-lg text-[#8A9BB0] mb-12 max-w-2xl mx-auto">
+          {cta.subtitle}
         </p>
 
         <Link
-          href="/contact"
-          className="inline-flex items-center gap-2 px-8 py-3 bg-white text-black rounded-lg font-semibold hover:bg-white/90 transition-colors duration-300 cursor-pointer"
+          href={cta.ctas?.[0]?.href ?? "/contact"}
+          className="inline-flex items-center gap-2 px-8 py-3 bg-[#00C4AF] text-[#111318] rounded-lg font-semibold hover:bg-[#00C4AF]/90 transition-colors duration-300"
         >
-          Start a Conversation
+          {cta.ctas?.[0].label}
           <ArrowRight size={18} />
         </Link>
       </section>

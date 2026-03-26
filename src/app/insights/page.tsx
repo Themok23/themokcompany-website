@@ -1,187 +1,135 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useRef } from "react"
-import { ArrowUpRight } from "lucide-react"
-import { PageHero } from "@/components/pageHero"
-import { SectionHeading } from "@/components/sectionHeading"
-import { useGsapReveal } from "@/lib/gsapUtils"
+import { useState, useRef } from "react";
+import { useGsapReveal } from "@/lib/gsapUtils";
+import { PageHero } from "@/components/pageHero";
+import { SectionHeading } from "@/components/sectionHeading";
+import { ArrowUpRight } from "lucide-react";
+import {
+  getInsights,
+  getInsightsByCategory,
+} from "@/content/insights";
 
-const categories = [
-  { id: "all", label: "All Insights" },
-  { id: "articles", label: "Articles" },
-  { id: "research", label: "Research & Reports" },
-  { id: "thought-leadership", label: "Thought Leadership" },
-]
-
-const insights = [
-  {
-    id: 1,
-    category: "articles",
-    title: "The Future of Digital Transformation in Retail",
-    excerpt:
-      "Exploring how AI and automation are reshaping customer experiences and operational efficiency in modern retail.",
-    date: "March 15, 2026",
-    slug: "future-digital-transformation",
-  },
-  {
-    id: 2,
-    category: "research",
-    title: "2026 Enterprise Technology Report",
-    excerpt:
-      "Comprehensive analysis of technology adoption trends, investment priorities, and challenges facing enterprises today.",
-    date: "March 10, 2026",
-    slug: "enterprise-tech-report",
-  },
-  {
-    id: 3,
-    category: "thought-leadership",
-    title: "Building Resilient Organizations",
-    excerpt:
-      "How strategic foresight and adaptive planning create organizations that thrive in uncertainty.",
-    date: "March 5, 2026",
-    slug: "resilient-organizations",
-  },
-  {
-    id: 4,
-    category: "articles",
-    title: "AI Strategy That Actually Works",
-    excerpt:
-      "Moving beyond hype: practical frameworks for implementing AI initiatives with measurable business impact.",
-    date: "February 28, 2026",
-    slug: "ai-strategy-framework",
-  },
-  {
-    id: 5,
-    category: "research",
-    title: "Global Market Expansion Playbook",
-    excerpt:
-      "Data-driven strategies for entering new markets, tested across industries and geographies.",
-    date: "February 20, 2026",
-    slug: "market-expansion-playbook",
-  },
-  {
-    id: 6,
-    category: "thought-leadership",
-    title: "Leadership in the AI Era",
-    excerpt:
-      "What effective leadership looks like when machines can process data faster than humans can think.",
-    date: "February 12, 2026",
-    slug: "leadership-ai-era",
-  },
-]
+type InsightCategory = "articles" | "research" | "thought-leadership";
 
 export default function InsightsPage() {
-  const [activeCategory, setActiveCategory] = useState("all")
-  const cardsRef = useRef<(HTMLDivElement | null)[]>([])
-  const gridRef = useGsapReveal({ stagger: 0.08 })
+  const articlesRef = useGsapReveal({
+    duration: 0.8,
+    delay: 0.1,
+    stagger: 0.08,
+  });
 
-  const filteredInsights =
-    activeCategory === "all"
-      ? insights
-      : insights.filter((insight) => insight.category === activeCategory)
+  const [selectedCategory, setSelectedCategory] = useState<InsightCategory | "all">("all");
+
+  const allInsights = getInsights();
+  const displayedInsights =
+    selectedCategory === "all"
+      ? allInsights
+      : getInsightsByCategory(selectedCategory as InsightCategory);
+
+  const categories: { id: InsightCategory | "all"; label: string }[] = [
+    { id: "all", label: "All" },
+    { id: "articles", label: "Articles" },
+    { id: "research", label: "Research & Reports" },
+    { id: "thought-leadership", label: "Thought Leadership" },
+  ];
 
   return (
-    <main className="min-h-screen bg-black text-white">
+    <div className="w-full bg-[#111318] text-white min-h-screen overflow-x-hidden">
+      {/* Page Hero */}
       <PageHero
         title="Insights"
-        subtitle="Ideas That Shape Industries."
+        subtitle="Ideas that shape industries."
       />
 
-      <div className="px-6 py-24 md:px-8">
-        <div className="max-w-7xl mx-auto">
-          <SectionHeading
-            title="Research & Thought Leadership"
-            description="Stay ahead with our latest analysis, research, and strategic perspectives."
-          />
+      {/* Insights Section */}
+      <section className="py-24 px-6 md:px-12 lg:px-20">
+        <div className="max-w-6xl mx-auto">
+          <div className="mb-16">
+            <SectionHeading title="Industry perspectives" />
 
-          {/* Category Filters */}
-          <div className="flex flex-wrap gap-3 mt-12 mb-16 border-b border-white/10 pb-8">
-            {categories.map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => setActiveCategory(cat.id)}
-                className={`px-4 py-2 text-sm font-medium rounded-full transition-all ${
-                  activeCategory === cat.id
-                    ? "bg-white text-black"
-                    : "border border-white/20 text-white/70 hover:border-white/40"
-                }`}
-              >
-                {cat.label}
-              </button>
-            ))}
+            {/* Category Filter */}
+            <div className="flex flex-wrap gap-3 mt-8">
+              {categories.map((cat) => (
+                <button
+                  key={cat.id}
+                  onClick={() => setSelectedCategory(cat.id)}
+                  className={`px-6 py-3 rounded-lg font-semibold transition-all font-[family-name:var(--font-sora)] ${
+                    selectedCategory === cat.id
+                      ? "bg-[#00C4AF] text-[#111318]"
+                      : "border border-[#1F2733] text-[#8A9BB0] hover:border-[#00C4AF]/50 hover:text-white"
+                  }`}
+                >
+                  {cat.label}
+                </button>
+              ))}
+            </div>
           </div>
 
-          {/* Insights Grid */}
+          {/* Articles Grid */}
           <div
-            ref={gridRef}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            ref={articlesRef}
+            className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12"
           >
-            {filteredInsights.map((insight, index) => (
+            {displayedInsights.map((article) => (
               <div
-                key={insight.id}
-                ref={(el) => {
-                  cardsRef.current[index] = el
-                }}
-                className="group p-6 rounded-lg border border-white/5 bg-gradient-to-br from-white/5 to-transparent hover:border-white/10 transition-all duration-500 flex flex-col"
+                key={article.id}
+                data-reveal
+                className="group border border-[#1F2733] rounded-lg p-8 hover:border-[#00C4AF]/30 transition-colors bg-[#1A1D24] flex flex-col"
               >
-                <div className="flex items-start justify-between mb-4">
-                  <span className="text-xs font-medium text-white/60 uppercase tracking-widest">
-                    {insight.category === "articles"
-                      ? "Article"
-                      : insight.category === "research"
-                        ? "Research"
-                        : "Thought Leadership"}
+                <div className="mb-6 flex items-center gap-3">
+                  <span className="px-3 py-1 bg-[#00C4AF]/10 text-[#00C4AF] text-xs font-semibold rounded-full uppercase tracking-wide font-[family-name:var(--font-sora)]">
+                    {article.category === "articles" && "Article"}
+                    {article.category === "research" && "Research"}
+                    {article.category === "thought-leadership" && "Thought Leadership"}
                   </span>
                 </div>
 
-                <h3 className="text-lg font-semibold mb-3 group-hover:text-white/90 transition-colors line-clamp-2">
-                  {insight.title}
+                <h3 className="text-xl md:text-2xl font-semibold text-white mb-3 group-hover:text-[#00C4AF] transition-colors flex-grow font-[family-name:var(--font-sora)]">
+                  {article.title}
                 </h3>
 
-                <p className="text-white/70 text-sm leading-relaxed mb-4 flex-grow">
-                  {insight.excerpt}
+                <p className="text-[#8A9BB0] leading-relaxed mb-6 font-[family-name:var(--font-dm-sans)]">
+                  {article.excerpt}
                 </p>
 
-                <div className="flex items-center justify-between mt-auto pt-4 border-t border-white/5">
-                  <span className="text-xs text-white/50">{insight.date}</span>
-                  <button className="flex items-center gap-2 text-sm font-medium text-white/80 hover:text-white transition-colors">
-                    <span>Read</span>
-                    <ArrowUpRight size={14} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-                  </button>
+                <div className="pt-6 border-t border-[#1F2733] flex items-center justify-between">
+                  <div className="flex gap-4 text-xs text-[#8A9BB0] font-[family-name:var(--font-dm-sans)]">
+                    <span>{article.date}</span>
+                    <span>{article.readTime}</span>
+                  </div>
+                  <a
+                    href={`/insights/${article.slug}`}
+                    className="text-[#00C4AF] hover:text-white transition-colors"
+                  >
+                    <ArrowUpRight className="w-5 h-5" />
+                  </a>
                 </div>
               </div>
             ))}
           </div>
 
-          {filteredInsights.length === 0 && (
-            <div className="text-center py-16">
-              <p className="text-white/60">No insights found in this category.</p>
+          {displayedInsights.length === 0 && (
+            <div className="text-center py-12">
+              <p className="text-[#8A9BB0] text-lg font-[family-name:var(--font-dm-sans)]">
+                No insights found in this category.
+              </p>
             </div>
           )}
         </div>
-      </div>
+      </section>
 
-      <section className="px-6 py-16 md:px-8 border-t border-white/5">
-        <div className="max-w-7xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-semibold mb-6">
-            Stay Updated
+      {/* CTA Section */}
+      <section className="border-t border-[#1F2733] py-16 px-6 md:px-12 lg:px-20 bg-[#1A1D24]">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-3xl md:text-4xl font-light mb-6 font-[family-name:var(--font-sora)]">
+            Stay ahead of industry trends
           </h2>
-          <p className="text-white/70 text-lg mb-8 max-w-2xl mx-auto">
-            Subscribe to receive our latest insights, research, and strategic perspectives delivered to your inbox.
+          <p className="text-lg text-[#8A9BB0] mb-8 font-[family-name:var(--font-dm-sans)]">
+            Subscribe to our insights to get the latest perspectives on digital transformation.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-            <input
-              type="email"
-              placeholder="Enter your email"
-              className="flex-1 px-4 py-3 rounded-full bg-white/10 border border-white/20 text-white placeholder-white/50 focus:border-white/40 focus:outline-none transition-colors"
-            />
-            <button className="px-8 py-3 bg-white text-black font-semibold rounded-full hover:bg-white/90 transition-colors">
-              Subscribe
-            </button>
-          </div>
         </div>
       </section>
-    </main>
-  )
+    </div>
+  );
 }

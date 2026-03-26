@@ -1,145 +1,159 @@
-"use client"
-import { useRef } from "react"
+"use client";
 
-import { ArrowUpRight, Zap } from "lucide-react"
-import { PageHero } from "@/components/pageHero"
-import { SectionHeading } from "@/components/sectionHeading"
-import { useGsapReveal } from "@/lib/gsapUtils"
-
-const portfolio = [
-  {
-    id: 1,
-    name: "StrategyOS",
-    description:
-      "AI-powered strategic planning platform helping enterprises navigate complex transformations.",
-    status: "Active",
-    slug: "strategyos",
-  },
-  {
-    id: 2,
-    name: "DataVault",
-    description:
-      "Enterprise data governance and intelligence platform with advanced privacy controls.",
-    status: "Active",
-    slug: "datavault",
-  },
-  {
-    id: 3,
-    name: "NextGen Consulting",
-    description:
-      "Digital-first consulting practice serving mid-market enterprises in transformation.",
-    status: "Launched",
-    slug: "nextgen-consulting",
-  },
-]
-
-const statusColor = {
-  Active: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
-  Stealth: "bg-amber-500/20 text-amber-400 border-amber-500/30",
-  Launched: "bg-blue-500/20 text-blue-400 border-blue-500/30",
-}
+import { useRef } from "react";
+import { useGsapReveal } from "@/lib/gsapUtils";
+import { PageHero } from "@/components/pageHero";
+import { SectionHeading } from "@/components/sectionHeading";
+import { ArrowUpRight, Check } from "lucide-react";
+import {
+  getSaaSProducts,
+  getInnovationLab,
+} from "@/content/ventures";
 
 export default function VenturesPage() {
-  const cardsRef = useRef<(HTMLDivElement | null)[]>([])
-  const portfolioRef = useGsapReveal({ stagger: 0.15 })
+  const productsRef = useGsapReveal({
+    duration: 0.8,
+    delay: 0.1,
+    stagger: 0.15,
+  });
+
+  const products = getSaaSProducts();
+  const innovationLab = getInnovationLab();
 
   return (
-    <main className="min-h-screen bg-black text-white">
+    <div className="w-full bg-[#111318] text-white min-h-screen overflow-x-hidden">
+      {/* Page Hero */}
       <PageHero
         title="Ventures"
         subtitle="Building the next generation of companies and products."
       />
 
-      <div className="px-6 py-24 md:px-8">
+      {/* SaaS Products Section */}
+      <section className="border-b border-[#1F2733] py-24 px-6 md:px-12 lg:px-20">
         <div className="max-w-7xl mx-auto">
-          {/* Portfolio Section */}
-          <section className="mb-24">
-            <SectionHeading
-              title="Portfolio Companies"
-              description="Strategic investments and ventures led by MOK's innovation team."
-            />
+          <SectionHeading
+            label="Our Products"
+            title="Enterprise solutions built for scale"
+            description="Premium SaaS platforms designed to solve real business challenges."
+          />
 
-            <div
-              ref={portfolioRef}
-              className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16"
-            >
-              {portfolio.map((venture, index) => (
-                <div
-                  key={venture.id}
-                  ref={(el) => {
-                    cardsRef.current[index] = el
-                  }}
-                  className="group p-8 rounded-lg border border-white/5 bg-gradient-to-br from-white/5 to-transparent hover:border-white/10 transition-all duration-500 flex flex-col"
-                >
-                  <div className="flex items-start justify-between mb-4">
-                    <h3 className="text-xl font-semibold">{venture.name}</h3>
+          <div
+            ref={productsRef}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+          >
+            {products.map((product) => (
+              <div
+                key={product.id}
+                data-reveal
+                className="group relative border border-[#1F2733] rounded-lg p-8 hover:border-[#00C4AF]/50 transition-all bg-gradient-to-br from-[#1A1D24] to-[#0D0F14] hover:shadow-lg hover:shadow-[#00C4AF]/10 overflow-hidden"
+              >
+                {/* Background gradient */}
+                <div className="absolute inset-0 bg-gradient-to-br from-[#00C4AF]/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+
+                <div className="relative z-10">
+                  <div className="mb-6 flex items-start justify-between">
+                    <div>
+                      <h3 className="text-2xl font-semibold text-white mb-2 group-hover:text-[#00C4AF] transition-colors font-[family-name:var(--font-sora)]">
+                        {product.name}
+                      </h3>
+                      <p className="text-[#00C4AF] text-sm font-semibold font-[family-name:var(--font-sora)]">
+                        {product.tagline}
+                      </p>
+                    </div>
+                    <div className="px-3 py-1 bg-[#00C4AF]/10 text-[#00C4AF] text-xs font-semibold rounded-full capitalize font-[family-name:var(--font-sora)]">
+                      {product.status === "active" && "Active"}
+                      {product.status === "launched" && "Launched"}
+                      {product.status === "coming-soon" && "Coming Soon"}
+                      {product.status === "stealth" && "Stealth"}
+                    </div>
                   </div>
 
-                  <p className="text-white/70 text-sm leading-relaxed mb-6 flex-grow">
-                    {venture.description}
+                  <p className="text-[#8A9BB0] leading-relaxed mb-8 font-[family-name:var(--font-dm-sans)]">
+                    {product.description}
                   </p>
 
-                  <div className="flex items-center justify-between">
-                    <span
-                      className={`text-xs font-medium px-3 py-1 rounded-full border ${
-                        statusColor[venture.status as keyof typeof statusColor]
-                      }`}
+                  {product.features && product.features.length > 0 && (
+                    <div className="mb-8 space-y-3">
+                      {product.features.slice(0, 4).map((feature, idx) => (
+                        <div
+                          key={idx}
+                          className="flex items-start gap-3 text-[#8A9BB0] font-[family-name:var(--font-dm-sans)]"
+                        >
+                          <Check className="w-4 h-4 mt-0.5 text-[#00C4AF] flex-shrink-0" />
+                          <span className="text-sm">{feature}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {product.url && (
+                    <a
+                      href={product.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-6 py-3 bg-[#00C4AF] text-[#111318] font-semibold rounded-lg hover:bg-[#00C4AF]/90 transition-colors font-[family-name:var(--font-sora)]"
                     >
-                      {venture.status}
-                    </span>
-                    <ArrowUpRight size={16} className="text-white/60 group-hover:text-white group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
+                      {product.status === "active" || product.status === "launched"
+                        ? "Visit Platform"
+                        : "Learn More"}
+                      <ArrowUpRight className="w-4 h-4" />
+                    </a>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Innovation Lab Section */}
+      <section className="py-24 px-6 md:px-12 lg:px-20">
+        <div className="max-w-6xl mx-auto">
+          <SectionHeading
+            label={innovationLab.title}
+            title="Where breakthrough ideas live"
+            description={innovationLab.description}
+            align="center"
+          />
+
+          {innovationLab.items && innovationLab.items.length > 0 && (
+            <div className="mt-16 grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+              {innovationLab.items.map((item, idx) => (
+                <div
+                  key={idx}
+                  className="flex items-start gap-4 p-6 border border-[#1F2733] rounded-lg bg-[#1A1D24]"
+                >
+                  <div className="flex-shrink-0">
+                    <Check className="w-6 h-6 text-[#00C4AF]" />
                   </div>
+                  <p className="text-[#8A9BB0] font-[family-name:var(--font-dm-sans)]">
+                    {item}
+                  </p>
                 </div>
               ))}
             </div>
-          </section>
-
-          {/* Innovation Lab Section */}
-          <section className="border-t border-white/5 pt-24">
-            <div className="max-w-3xl">
-              <div className="flex items-start gap-4 mb-8">
-                <Zap className="text-white/80 flex-shrink-0 mt-1" size={24} />
-                <div>
-                  <h2 className="text-3xl font-semibold mb-6">
-                    MOK Innovation Lab
-                  </h2>
-                  <p className="text-white/70 text-lg leading-relaxed mb-6">
-                    Our internal lab is where we test bold ideas, run rapid prototypes, and validate market opportunities before scaling. We combine strategic thinking with hands-on development to launch products and ventures that address real market gaps.
-                  </p>
-                  <p className="text-white/70 text-lg leading-relaxed mb-8">
-                    The lab operates on a modular approach: identify opportunity, design solution, run sprint, measure impact, scale or pivot. We're always looking for exceptional talent to join as core contributors or advisors.
-                  </p>
-                  <a
-                    href="/contact"
-                    className="inline-flex items-center gap-2 px-6 py-3 bg-white/10 border border-white/20 text-white font-medium rounded-full hover:bg-white/20 hover:border-white/40 transition-all"
-                  >
-                    Get Involved
-                    <ArrowUpRight size={16} />
-                  </a>
-                </div>
-              </div>
-            </div>
-          </section>
+          )}
         </div>
-      </div>
+      </section>
 
-      <section className="px-6 py-16 md:px-8 border-t border-white/5">
-        <div className="max-w-7xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-semibold mb-6">
-            Have an Idea?
+      {/* CTA Section */}
+      <section className="border-t border-[#1F2733] py-16 px-6 md:px-12 lg:px-20 bg-[#1A1D24]">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-3xl md:text-4xl font-light mb-6 font-[family-name:var(--font-sora)]">
+            Interested in our ventures?
           </h2>
-          <p className="text-white/70 text-lg mb-8 max-w-2xl mx-auto">
-            If you have a venture idea or want to collaborate on innovation, we'd love to hear from you.
+          <p className="text-lg text-[#8A9BB0] mb-8 font-[family-name:var(--font-dm-sans)]">
+            Let us know if you would like to explore partnership opportunities or learn more.
           </p>
           <a
             href="/contact"
-            className="inline-flex items-center gap-2 px-8 py-3 bg-white text-black font-semibold rounded-full hover:bg-white/90 transition-colors"
+            className="inline-flex items-center gap-2 px-8 py-4 bg-[#00C4AF] text-[#111318] font-semibold hover:bg-[#00C4AF]/90 transition-colors rounded-lg font-[family-name:var(--font-sora)]"
           >
-            Start a Conversation
-            <ArrowUpRight size={18} />
+            Get in Touch
+            <ArrowUpRight className="w-5 h-5" />
           </a>
         </div>
       </section>
-    </main>
-  )
+    </div>
+  );
 }

@@ -1,167 +1,144 @@
-"use client"
+"use client";
 
-import { useRef } from "react"
-import { ArrowUpRight, MapPin, Briefcase, Clock } from "lucide-react"
-import { PageHero } from "@/components/pageHero"
-import { SectionHeading } from "@/components/sectionHeading"
-import { useGsapReveal } from "@/lib/gsapUtils"
-
-const positions = [
-  {
-    id: 1,
-    title: "Senior Brand Strategist",
-    department: "Management",
-    location: "Dubai, UAE",
-    type: "Full-time",
-    slug: "senior-brand-strategist",
-  },
-  {
-    id: 2,
-    title: "Full-Stack Developer",
-    department: "Technology",
-    location: "Dubai, UAE",
-    type: "Full-time",
-    slug: "full-stack-developer",
-  },
-  {
-    id: 3,
-    title: "Innovation Lead",
-    department: "Innovations",
-    location: "Dubai, UAE",
-    type: "Full-time",
-    slug: "innovation-lead",
-  },
-]
-
-const departmentColor = {
-  Management: "text-blue-400",
-  Technology: "text-emerald-400",
-  Innovations: "text-purple-400",
-}
+import { useRef } from "react";
+import { useGsapReveal } from "@/lib/gsapUtils";
+import { PageHero } from "@/components/pageHero";
+import { SectionHeading } from "@/components/sectionHeading";
+import { ArrowRight } from "lucide-react";
+import {
+  getPositions,
+  getCareersCulture,
+} from "@/content/careers";
 
 export default function CareersPage() {
-  const cardsRef = useRef<(HTMLDivElement | null)[]>([])
-  const jobsRef = useGsapReveal({ stagger: 0.1 })
+  const cultureRef = useGsapReveal({ duration: 0.8, delay: 0.1 });
+  const positionsRef = useGsapReveal({
+    duration: 0.8,
+    delay: 0.2,
+    stagger: 0.08,
+  });
+
+  const positions = getPositions();
+  const culture = getCareersCulture();
 
   return (
-    <main className="min-h-screen bg-black text-white">
+    <div className="w-full bg-[#111318] text-white min-h-screen overflow-x-hidden">
+      {/* Page Hero */}
       <PageHero
         title="Careers"
-        subtitle="Join the team building what's next."
+        subtitle="Join the team building what is next."
       />
 
-      <div className="px-6 py-24 md:px-8">
-        <div className="max-w-7xl mx-auto">
-          {/* Culture Section */}
-          <section className="mb-24 max-w-3xl">
-            <h2 className="text-3xl font-semibold mb-6">Why MOK?</h2>
-            <p className="text-white/70 text-lg leading-relaxed mb-6">
-              At The Mok Company, we're not building just for clients. We're building for the future. We hire people who are curious, strategic, and unafraid of complexity. We offer real ownership, learning opportunities that go beyond your job description, and the chance to shape the future of digital transformation.
-            </p>
-            <p className="text-white/70 text-lg leading-relaxed">
-              We work on problems that matter, with clients who are serious about change, using the latest tools and strategies. If you're ready to do work that challenges you and leaves an impact, you're in the right place.
-            </p>
-          </section>
+      {/* Culture Section */}
+      <section className="border-b border-[#1F2733] py-24 px-6 md:px-12 lg:px-20">
+        <div ref={cultureRef} className="max-w-6xl mx-auto">
+          <SectionHeading
+            label={culture.title}
+            title="Our Culture"
+            description={culture.description}
+          />
 
-          {/* Open Positions */}
-          <section className="mb-24">
-            <SectionHeading
-              title="Open Positions"
-              description="We're hiring exceptional people to join our growing team."
-            />
-
-            <div
-              ref={jobsRef}
-              className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16"
-            >
-              {positions.map((position, index) => (
+          {culture.items && culture.items.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12">
+              {culture.items.map((item, idx) => (
                 <div
-                  key={position.id}
-                  ref={(el) => {
-                    cardsRef.current[index] = el
-                  }}
-                  className="group p-8 rounded-lg border border-white/5 bg-gradient-to-br from-white/5 to-transparent hover:border-white/10 transition-all duration-500 flex flex-col"
+                  key={idx}
+                  data-reveal
+                  className="flex items-start gap-4 p-6 border border-[#1F2733] rounded-lg bg-[#1A1D24] hover:border-[#00C4AF]/30 transition-colors"
                 >
-                  <h3 className="text-xl font-semibold mb-4 group-hover:text-white/90 transition-colors">
-                    {position.title}
-                  </h3>
-
-                  <div className="space-y-3 mb-8 flex-grow">
-                    <div className="flex items-center gap-2">
-                      <Briefcase
-                        size={16}
-                        className={`${departmentColor[position.department as keyof typeof departmentColor]}`}
-                      />
-                      <span className="text-sm text-white/70">
-                        {position.department}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <MapPin size={16} className="text-white/60" />
-                      <span className="text-sm text-white/70">
-                        {position.location}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <Clock size={16} className="text-white/60" />
-                      <span className="text-sm text-white/70">
-                        {position.type}
-                      </span>
-                    </div>
+                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-[#00C4AF]/20 border border-[#00C4AF]/40 flex items-center justify-center mt-1">
+                    <div className="w-2 h-2 bg-[#00C4AF] rounded-full" />
                   </div>
-
-                  <a
-                    href={`/careers/${position.slug}`}
-                    className="flex items-center gap-2 text-sm font-medium text-white/80 hover:text-white transition-colors"
-                  >
-                    <span>View & Apply</span>
-                    <ArrowUpRight size={16} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                  </a>
+                  <p className="text-[#8A9BB0] leading-relaxed font-[family-name:var(--font-dm-sans)]">
+                    {item}
+                  </p>
                 </div>
               ))}
             </div>
-          </section>
-
-          {/* CTA Section */}
-          <section className="border-t border-white/5 pt-24">
-            <div className="max-w-3xl">
-              <h2 className="text-3xl font-semibold mb-6">
-                Don't see your role?
-              </h2>
-              <p className="text-white/70 text-lg leading-relaxed mb-8">
-                We're always on the lookout for exceptional people. If you believe you'd be a great fit for MOK but don't see a specific opening, we want to hear from you. Send us your profile and let's explore possibilities together.
-              </p>
-              <a
-                href="/contact"
-                className="inline-flex items-center gap-2 px-8 py-3 bg-white text-black font-semibold rounded-full hover:bg-white/90 transition-colors"
-              >
-                Get in Touch
-                <ArrowUpRight size={18} />
-              </a>
-            </div>
-          </section>
+          )}
         </div>
-      </div>
+      </section>
 
-      <section className="px-6 py-16 md:px-8 border-t border-white/5">
-        <div className="max-w-7xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-semibold mb-6">
-            Ready to Join?
+      {/* Open Positions Section */}
+      <section className="py-24 px-6 md:px-12 lg:px-20">
+        <div className="max-w-6xl mx-auto">
+          <SectionHeading
+            label="Open Positions"
+            title="Join our team"
+            description="We are actively seeking talented individuals who are passionate about digital transformation and excellence."
+          />
+
+          <div
+            ref={positionsRef}
+            className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12"
+          >
+            {positions.map((position) => (
+              <div
+                key={position.id}
+                data-reveal
+                className="group border border-[#1F2733] rounded-lg p-8 hover:border-[#00C4AF]/30 transition-colors bg-[#1A1D24]"
+              >
+                <div className="mb-6">
+                  <h3 className="text-2xl font-semibold text-white mb-4 group-hover:text-[#00C4AF] transition-colors font-[family-name:var(--font-sora)]">
+                    {position.title}
+                  </h3>
+
+                  <div className="flex flex-wrap gap-3">
+                    <span className="px-3 py-1 bg-[#00C4AF]/10 text-[#00C4AF] text-xs font-semibold rounded-full uppercase tracking-wide font-[family-name:var(--font-sora)]">
+                      {position.department}
+                    </span>
+                    <span className="px-3 py-1 border border-[#1F2733] text-[#8A9BB0] text-xs font-semibold rounded-full uppercase tracking-wide font-[family-name:var(--font-sora)]">
+                      {position.location}
+                    </span>
+                    <span className="px-3 py-1 border border-[#1F2733] text-[#8A9BB0] text-xs font-semibold rounded-full uppercase tracking-wide font-[family-name:var(--font-sora)]">
+                      {position.type}
+                    </span>
+                  </div>
+                </div>
+
+                <p className="text-[#8A9BB0] leading-relaxed mb-6 font-[family-name:var(--font-dm-sans)]">
+                  {position.description}
+                </p>
+
+                <a
+                  href="/contact"
+                  className="inline-flex items-center gap-2 text-[#00C4AF] hover:text-white transition-colors font-semibold font-[family-name:var(--font-sora)]"
+                >
+                  Apply Now
+                  <ArrowRight className="w-4 h-4" />
+                </a>
+              </div>
+            ))}
+          </div>
+
+          {positions.length === 0 && (
+            <div className="text-center py-12">
+              <p className="text-[#8A9BB0] text-lg font-[family-name:var(--font-dm-sans)]">
+                No open positions at the moment. Check back soon!
+              </p>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="border-t border-[#1F2733] py-16 px-6 md:px-12 lg:px-20 bg-[#1A1D24]">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-3xl md:text-4xl font-light mb-6 font-[family-name:var(--font-sora)]">
+            Do not see your role? We are always looking.
           </h2>
-          <p className="text-white/70 text-lg mb-8 max-w-2xl mx-auto">
-            Apply to one of our open positions or reach out to discuss your career with MOK.
+          <p className="text-lg text-[#8A9BB0] mb-8 font-[family-name:var(--font-dm-sans)]">
+            If you believe you can contribute to our mission, reach out and tell us why.
           </p>
           <a
             href="/contact"
-            className="inline-flex items-center gap-2 px-8 py-3 bg-white/10 border border-white/20 text-white font-semibold rounded-full hover:bg-white/20 hover:border-white/40 transition-all"
+            className="inline-flex items-center gap-2 px-8 py-4 bg-[#00C4AF] text-[#111318] font-semibold hover:bg-[#00C4AF]/90 transition-colors rounded-lg font-[family-name:var(--font-sora)]"
           >
-            Start a Conversation
-            <ArrowUpRight size={18} />
+            Get in Touch
+            <ArrowRight className="w-5 h-5" />
           </a>
         </div>
       </section>
-    </main>
-  )
+    </div>
+  );
 }

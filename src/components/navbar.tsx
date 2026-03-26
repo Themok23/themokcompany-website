@@ -48,7 +48,7 @@ export function Navbar() {
       <nav
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
           scrolled
-            ? "bg-black/80 backdrop-blur-xl border-b border-white/5"
+            ? "bg-[#111318]/80 backdrop-blur-xl border-b border-[#1F2733]"
             : "bg-transparent"
         }`}
       >
@@ -68,7 +68,7 @@ export function Navbar() {
                   href={link.href}
                   className={`text-sm tracking-wide transition-colors duration-300 cursor-pointer link-underline ${
                     pathname === link.href
-                      ? "text-white"
+                      ? "text-[#00C4AF]"
                       : "text-white/60 hover:text-white"
                   }`}
                 >
@@ -80,7 +80,7 @@ export function Navbar() {
             <div className="hidden lg:block">
               <Link
                 href="/contact"
-                className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-black bg-white rounded-full hover:bg-white/90 transition-all duration-300 cursor-pointer"
+                className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-[#111318] bg-[#00C4AF] rounded-full hover:bg-[#00C4AF]/90 transition-all duration-300 cursor-pointer"
               >
                 Start a Conversation
                 <ArrowUpRight className="w-4 h-4" />
@@ -100,7 +100,7 @@ export function Navbar() {
 
       {/* Mobile menu */}
       <div
-        className={`fixed inset-0 z-40 bg-black transition-all duration-500 lg:hidden ${
+        className={`fixed inset-0 z-40 bg-[#111318] transition-all duration-500 lg:hidden ${
           isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}
       >
@@ -110,7 +110,7 @@ export function Navbar() {
               key={link.href}
               href={link.href}
               className={`text-3xl font-light tracking-wide transition-all duration-500 cursor-pointer ${
-                pathname === link.href ? "text-white" : "text-white/50 hover:text-white"
+                pathname === link.href ? "text-[#00C4AF]" : "text-white/50 hover:text-white"
               }`}
               style={{
                 transitionDelay: isOpen ? `${i * 50}ms` : "0ms",
@@ -123,7 +123,7 @@ export function Navbar() {
           ))}
           <Link
             href="/contact"
-            className="mt-8 inline-flex items-center gap-2 px-8 py-3 text-base font-medium text-black bg-white rounded-full cursor-pointer"
+            className="mt-8 inline-flex items-center gap-2 px-8 py-3 text-base font-medium text-[#111318] bg-[#00C4AF] rounded-full cursor-pointer hover:bg-[#00C4AF]/90"
             style={{
               transitionDelay: isOpen ? `${navLinks.length * 50}ms` : "0ms",
               transform: isOpen ? "translateY(0)" : "translateY(20px)",
