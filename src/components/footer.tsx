@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowUpRight } from "lucide-react";
 
 const footerColumns = [
@@ -43,6 +44,16 @@ export function Footer() {
   return (
     <footer className="bg-[#0D0F14] border-t border-[#1F2733]">
       <div className="max-w-7xl mx-auto px-6 lg:px-8 pt-20 pb-8">
+        {/* Logo */}
+        <div className="mb-16">
+          <Image
+            src="/mok-logo-light.svg"
+            alt="The Mok Company"
+            width={160}
+            height={45}
+          />
+        </div>
+
         {/* CTA Section */}
         <div className="mb-20">
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-light text-white mb-8 max-w-3xl leading-tight">

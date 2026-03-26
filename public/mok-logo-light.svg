@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 80" fill="none">
+  <defs>
+    <linearGradient id="kGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#06B6D4;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#2DD4BF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#4ADE80;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <!-- T -->
+  <path d="M4 8h28v8H22v36h-10V16H4V8z" fill="#FFFFFF"/>
+  <!-- H -->
+  <path d="M36 8h10v16h14V8h10v44h-10V32H46v20H36V8z" fill="#FFFFFF"/>
+  <!-- E -->
+  <path d="M76 8h28v8H86v8h16v8H86v12h18v8H76V8z" fill="#FFFFFF"/>
+  <!-- M -->
+  <path d="M108 8h12l10 20 10-20h12v44h-10V22l-10 20h-4l-10-20v30h-10V8z" fill="#FFFFFF"/>
+  <!-- O -->
+  <path d="M170 8c13 0 22 10 22 22s-9 22-22 22-22-10-22-22 9-22 22-22zm0 8c-7.5 0-12 6-12 14s4.5 14 12 14 12-6 12-14-4.5-14-12-14z" fill="#FFFFFF"/>
+  <!-- K (cyan-green gradient) -->
+  <path d="M198 8h10v16l20-16h12l-20 18 22 26h-12l-16-20-6 5v15h-10V8z" fill="url(#kGrad)"/>
+  <!-- COMPANY subtitle -->
+  <text x="168" y="72" font-family="Sora, Inter, Arial, sans-serif" font-size="10" font-weight="600" letter-spacing="4" fill="rgba(255,255,255,0.6)">COMPANY</text>
+</svg>

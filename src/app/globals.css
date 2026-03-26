@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-background: #111318;
+  --color-background: #090B10;
   --color-foreground: #FFFFFF;
   --color-primary: #00C4AF;
   --color-accent: #8A9BB0;
@@ -39,7 +39,7 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #111318;
+  background: #090B10;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -100,4 +100,13 @@ body {
 
 .link-underline:hover::after {
   width: 100%;
+}
+
+.img-tint {
+  filter: grayscale(100%);
+  transition: filter 0.5s ease;
+}
+
+.img-tint:hover {
+  filter: grayscale(0);
 }

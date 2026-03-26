@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X, ArrowUpRight } from "lucide-react";
@@ -18,12 +19,35 @@ const navLinks = [
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
   const pathname = usePathname();
+  const lastScrollYRef = useRef(0);
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
+      const currentScrollY = window.scrollY;
+
+      // Add backdrop blur when scrolled past 50px
+      setScrolled(currentScrollY > 50);
+
+      // Show/hide navbar based on scroll direction
+      if (currentScrollY > 80) {
+        // Scrolling down
+        if (currentScrollY > lastScrollYRef.current) {
+          setIsVisible(false);
+        }
+        // Scrolling up
+        else {
+          setIsVisible(true);
+        }
+      } else {
+        // Always visible when near top
+        setIsVisible(true);
+      }
+
+      lastScrollYRef.current = currentScrollY;
     };
+
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -46,19 +70,24 @@ export function Navbar() {
   return (
     <>
       <nav
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+          isVisible ? "translate-y-0" : "-translate-y-full"
+        } ${
           scrolled
-            ? "bg-[#111318]/80 backdrop-blur-xl border-b border-[#1F2733]"
+            ? "bg-[#090B10]/80 backdrop-blur-xl border-b border-[#1F2733]"
             : "bg-transparent"
         }`}
       >
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
-            <Link
-              href="/"
-              className="text-white font-semibold text-lg tracking-tight cursor-pointer"
-            >
-              THE MOK COMPANY
+            <Link href="/" className="cursor-pointer">
+              <Image
+                src="/mok-logo-light.svg"
+                alt="The Mok Company"
+                width={160}
+                height={45}
+                priority
+              />
             </Link>
 
             <div className="hidden lg:flex items-center gap-8">
@@ -100,7 +129,7 @@ export function Navbar() {
 
       {/* Mobile menu */}
       <div
-        className={`fixed inset-0 z-40 bg-[#111318] transition-all duration-500 lg:hidden ${
+        className={`fixed inset-0 z-40 bg-[#090B10] transition-all duration-500 lg:hidden ${
           isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}
       >

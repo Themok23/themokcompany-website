@@ -21,13 +21,19 @@ const PARTICLE_CONFIG = {
   desktop: 80,
   mobile: 40,
   size: 1.5,
-  maxOpacity: 0.4,
-  minOpacity: 0.1,
+  maxOpacity: 0.1,
+  minOpacity: 0.05,
   connectionDistance: 150,
   drift: 0.3,
-  mouseInfluenceRadius: 200,
-  mouseInfluenceStrength: 0.5,
-  glowRadius: 200,
+  spotlightRadius: 350,
+  spotlightIntensity: 0.8,
+  glowLerpSpeed: 0.1,
+};
+
+const COLORS = {
+  background: '#090B10',
+  teal: '#00C4AF',
+  cyan: '#00A8FF',
 };
 
 export function CanvasBackground() {
@@ -78,23 +84,29 @@ export function CanvasBackground() {
 
     const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 
-    const drawParticles = () => {
+    const getParticleOpacity = (particle: Particle, spotlightX: number, spotlightY: number): number => {
+      const dx = spotlightX - particle.x;
+      const dy = spotlightY - particle.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+
+      if (distance > PARTICLE_CONFIG.spotlightRadius) {
+        return particle.baseOpacity * 0.3;
+      }
+
+      const falloff = 1 - distance / PARTICLE_CONFIG.spotlightRadius;
+      const brightOpacity = Math.min(0.6, particle.baseOpacity + 0.4 * falloff);
+      const dimOpacity = particle.baseOpacity * 0.3;
+
+      return lerp(dimOpacity, brightOpacity, falloff);
+    };
+
+    const drawParticles = (spotlightX: number, spotlightY: number) => {
       const ctx = contextRef.current;
       if (!ctx) return;
 
       const particles = particlesRef.current;
 
       particles.forEach((particle) => {
-        const dx = mouseRef.current.x - particle.x;
-        const dy = mouseRef.current.y - particle.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-
-        if (distance < PARTICLE_CONFIG.mouseInfluenceRadius) {
-          const strength = (1 - distance / PARTICLE_CONFIG.mouseInfluenceRadius) * PARTICLE_CONFIG.mouseInfluenceStrength;
-          particle.vx -= (dx / distance) * strength;
-          particle.vy -= (dy / distance) * strength;
-        }
-
         particle.vx += (Math.random() - 0.5) * PARTICLE_CONFIG.drift;
         particle.vy += (Math.random() - 0.5) * PARTICLE_CONFIG.drift;
 
@@ -109,7 +121,8 @@ export function CanvasBackground() {
         if (particle.y < 0) particle.y = canvas.height;
         if (particle.y > canvas.height) particle.y = 0;
 
-        particle.opacity = lerp(particle.opacity, particle.baseOpacity, 0.05);
+        const targetOpacity = getParticleOpacity(particle, spotlightX, spotlightY);
+        particle.opacity = lerp(particle.opacity, targetOpacity, 0.1);
 
         if (particle.isTeal) {
           ctx.fillStyle = `rgba(0, 196, 175, ${particle.opacity})`;
@@ -122,7 +135,25 @@ export function CanvasBackground() {
       });
     };
 
-    const drawConnections = () => {
+    const getConnectionOpacity = (distance: number, spotlightX: number, spotlightY: number, x1: number, y1: number, x2: number, y2: number): number => {
+      const midX = (x1 + x2) / 2;
+      const midY = (y1 + y2) / 2;
+
+      const dx = spotlightX - midX;
+      const dy = spotlightY - midY;
+      const distToSpotlight = Math.sqrt(dx * dx + dy * dy);
+
+      if (distToSpotlight > PARTICLE_CONFIG.spotlightRadius) {
+        return 0;
+      }
+
+      const falloff = 1 - distToSpotlight / PARTICLE_CONFIG.spotlightRadius;
+      const baseOpacity = (1 - distance / PARTICLE_CONFIG.connectionDistance) * 0.3;
+
+      return baseOpacity * falloff * falloff;
+    };
+
+    const drawConnections = (spotlightX: number, spotlightY: number) => {
       const ctx = contextRef.current;
       if (!ctx) return;
 
@@ -135,55 +166,48 @@ export function CanvasBackground() {
           const distance = Math.sqrt(dx * dx + dy * dy);
 
           if (distance < PARTICLE_CONFIG.connectionDistance) {
-            const opacity = (1 - distance / PARTICLE_CONFIG.connectionDistance) * 0.3;
-            ctx.strokeStyle = `rgba(0, 196, 175, ${opacity})`;
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.moveTo(particles[i].x, particles[i].y);
-            ctx.lineTo(particles[j].x, particles[j].y);
-            ctx.stroke();
+            const opacity = getConnectionOpacity(distance, spotlightX, spotlightY, particles[i].x, particles[i].y, particles[j].x, particles[j].y);
+
+            if (opacity > 0.001) {
+              ctx.strokeStyle = `rgba(0, 196, 175, ${opacity})`;
+              ctx.lineWidth = 1;
+              ctx.beginPath();
+              ctx.moveTo(particles[i].x, particles[i].y);
+              ctx.lineTo(particles[j].x, particles[j].y);
+              ctx.stroke();
+            }
           }
         }
       }
     };
 
-    const drawMouseGlow = () => {
+    const drawSpotlight = (spotlightX: number, spotlightY: number) => {
       const ctx = contextRef.current;
       if (!ctx) return;
 
-      mouseGlowRef.current.x = lerp(mouseGlowRef.current.x, mouseRef.current.x, 0.1);
-      mouseGlowRef.current.y = lerp(mouseGlowRef.current.y, mouseRef.current.y, 0.1);
+      const gradient = ctx.createRadialGradient(spotlightX, spotlightY, 0, spotlightX, spotlightY, PARTICLE_CONFIG.spotlightRadius);
 
-      const gradient = ctx.createRadialGradient(
-        mouseGlowRef.current.x,
-        mouseGlowRef.current.y,
-        0,
-        mouseGlowRef.current.x,
-        mouseGlowRef.current.y,
-        PARTICLE_CONFIG.glowRadius
-      );
-
-      gradient.addColorStop(0, 'rgba(0, 196, 175, 0.08)');
-      gradient.addColorStop(0.5, 'rgba(0, 196, 175, 0.03)');
+      gradient.addColorStop(0, 'rgba(0, 196, 175, 0.3)');
+      gradient.addColorStop(0.4, 'rgba(0, 196, 175, 0.15)');
+      gradient.addColorStop(0.7, 'rgba(0, 196, 175, 0.05)');
       gradient.addColorStop(1, 'rgba(0, 196, 175, 0)');
 
       ctx.fillStyle = gradient;
-      ctx.fillRect(
-        mouseGlowRef.current.x - PARTICLE_CONFIG.glowRadius,
-        mouseGlowRef.current.y - PARTICLE_CONFIG.glowRadius,
-        PARTICLE_CONFIG.glowRadius * 2,
-        PARTICLE_CONFIG.glowRadius * 2
-      );
+      ctx.fillRect(spotlightX - PARTICLE_CONFIG.spotlightRadius, spotlightY - PARTICLE_CONFIG.spotlightRadius, PARTICLE_CONFIG.spotlightRadius * 2, PARTICLE_CONFIG.spotlightRadius * 2);
     };
 
     const animate = () => {
       if (!ctx) return;
 
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = COLORS.background;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      drawConnections();
-      drawParticles();
-      drawMouseGlow();
+      mouseGlowRef.current.x = lerp(mouseGlowRef.current.x, mouseRef.current.x, PARTICLE_CONFIG.glowLerpSpeed);
+      mouseGlowRef.current.y = lerp(mouseGlowRef.current.y, mouseRef.current.y, PARTICLE_CONFIG.glowLerpSpeed);
+
+      drawParticles(mouseGlowRef.current.x, mouseGlowRef.current.y);
+      drawConnections(mouseGlowRef.current.x, mouseGlowRef.current.y);
+      drawSpotlight(mouseGlowRef.current.x, mouseGlowRef.current.y);
 
       animationIdRef.current = requestAnimationFrame(animate);
     };
@@ -206,8 +230,9 @@ export function CanvasBackground() {
     };
 
     if (prefersReducedMotion) {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
+      ctx.fillStyle = COLORS.background;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
       initializeParticles();
       particlesRef.current.forEach((particle) => {
         if (particle.isTeal) {

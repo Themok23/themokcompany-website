@@ -32,6 +32,8 @@ export default function Home() {
   const whoWeAreItemsRef = useRef<(HTMLDivElement | null)[]>([]);
   const threeArmsRef = useRef<HTMLDivElement>(null);
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
+  const horizontalScrollRef = useRef<HTMLDivElement>(null);
+  const scrollContentRef = useRef<HTMLDivElement>(null);
   const whyMokRef = useRef<HTMLDivElement>(null);
   const whyMokItemsRef = useRef<(HTMLDivElement | null)[]>([]);
   const whoWeWorkRef = useRef<HTMLDivElement>(null);
@@ -246,6 +248,47 @@ export default function Home() {
         });
       }
 
+      // Horizontal Scroll Carousel Section
+      if (horizontalScrollRef.current && scrollContentRef.current) {
+        const scrollContent = scrollContentRef.current;
+        const totalWidth = scrollContent.scrollWidth - window.innerWidth;
+
+        gsap.to(scrollContent, {
+          x: -totalWidth,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: horizontalScrollRef.current,
+            start: 'top top',
+            end: `+=${totalWidth + window.innerHeight}`,
+            scrub: 1,
+            pin: true,
+            markers: false,
+          },
+        });
+      }
+
+      // Parallax images in sections (subtle y movement on scroll)
+      const parallaxElements = containerRef.current?.querySelectorAll('.parallax-image');
+      if (parallaxElements) {
+        parallaxElements.forEach((element) => {
+          gsap.fromTo(
+            element,
+            { yPercent: 0 },
+            {
+              yPercent: -20,
+              ease: 'none',
+              scrollTrigger: {
+                trigger: element,
+                start: 'top bottom',
+                end: 'bottom top',
+                scrub: 1,
+                markers: false,
+              },
+            }
+          );
+        });
+      }
+
       // Why Mok section
       if (whyMokRef.current) {
         gsap.fromTo(
@@ -374,8 +417,18 @@ export default function Home() {
   return (
     <div
       ref={containerRef}
-      className="bg-[#111318] text-white overflow-hidden font-[family-name:var(--font-dm-sans)]"
+      className="bg-[#090B10] text-white overflow-hidden font-[family-name:var(--font-dm-sans)]"
     >
+      <style>{`
+        .img-tint {
+          filter: grayscale(100%);
+          transition: filter 0.4s ease-in-out;
+        }
+        .img-tint:hover {
+          filter: grayscale(0);
+        }
+      `}</style>
+
       {/* HERO SECTION */}
       <section className="relative min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 overflow-hidden">
         {/* Animated gradient orb background */}
@@ -531,6 +584,98 @@ export default function Home() {
               <li>App development</li>
               <li>Infrastructure</li>
             </ul>
+          </div>
+        </div>
+      </section>
+
+      {/* HORIZONTAL SCROLL CAROUSEL SECTION */}
+      <section
+        ref={horizontalScrollRef}
+        className="relative w-full h-screen overflow-hidden bg-[#0a0c10]"
+      >
+        <div
+          ref={scrollContentRef}
+          className="absolute left-0 top-0 h-full flex"
+          style={{ width: 'fit-content' }}
+        >
+          {/* Panel 1: Our Process */}
+          <div className="w-screen h-screen flex flex-col items-center justify-center px-8 sm:px-12 relative overflow-hidden flex-shrink-0">
+            <div className="absolute inset-0 bg-gradient-to-br from-[#00C4AF]/10 via-transparent to-[#00A8FF]/10 pointer-events-none" />
+            <div className="relative z-10 text-center max-w-2xl mx-auto">
+              <div className="text-8xl sm:text-9xl font-bold text-[#00C4AF]/20 mb-6 font-[family-name:var(--font-sora)]">
+                01
+              </div>
+              <h3 className="text-5xl sm:text-6xl font-bold mb-6 font-[family-name:var(--font-sora)]">
+                Our Process
+              </h3>
+              <p className="text-xl sm:text-2xl text-[#8A9BB0] leading-relaxed">
+                From insight to execution, every step is intentional.
+              </p>
+            </div>
+          </div>
+
+          {/* Panel 2: Discovery */}
+          <div className="w-screen h-screen flex flex-col items-center justify-center px-8 sm:px-12 relative overflow-hidden flex-shrink-0">
+            <div className="absolute inset-0 bg-gradient-to-br from-[#00A8FF]/10 via-transparent to-[#00C4AF]/10 pointer-events-none" />
+            <div className="relative z-10 text-center max-w-2xl mx-auto">
+              <div className="text-8xl sm:text-9xl font-bold text-[#00A8FF]/20 mb-6 font-[family-name:var(--font-sora)]">
+                02
+              </div>
+              <h3 className="text-5xl sm:text-6xl font-bold mb-6 font-[family-name:var(--font-sora)]">
+                Discovery
+              </h3>
+              <p className="text-xl sm:text-2xl text-[#8A9BB0] leading-relaxed">
+                We start by understanding your world. Market, audience, competition.
+              </p>
+            </div>
+          </div>
+
+          {/* Panel 3: Strategy */}
+          <div className="w-screen h-screen flex flex-col items-center justify-center px-8 sm:px-12 relative overflow-hidden flex-shrink-0">
+            <div className="absolute inset-0 bg-gradient-to-br from-[#00C4AF]/10 via-transparent to-[#00A8FF]/10 pointer-events-none" />
+            <div className="relative z-10 text-center max-w-2xl mx-auto">
+              <div className="text-8xl sm:text-9xl font-bold text-[#00C4AF]/20 mb-6 font-[family-name:var(--font-sora)]">
+                03
+              </div>
+              <h3 className="text-5xl sm:text-6xl font-bold mb-6 font-[family-name:var(--font-sora)]">
+                Strategy
+              </h3>
+              <p className="text-xl sm:text-2xl text-[#8A9BB0] leading-relaxed">
+                A clear roadmap built on data, not guesswork.
+              </p>
+            </div>
+          </div>
+
+          {/* Panel 4: Execution */}
+          <div className="w-screen h-screen flex flex-col items-center justify-center px-8 sm:px-12 relative overflow-hidden flex-shrink-0">
+            <div className="absolute inset-0 bg-gradient-to-br from-[#00A8FF]/10 via-transparent to-[#00C4AF]/10 pointer-events-none" />
+            <div className="relative z-10 text-center max-w-2xl mx-auto">
+              <div className="text-8xl sm:text-9xl font-bold text-[#00A8FF]/20 mb-6 font-[family-name:var(--font-sora)]">
+                04
+              </div>
+              <h3 className="text-5xl sm:text-6xl font-bold mb-6 font-[family-name:var(--font-sora)]">
+                Execution
+              </h3>
+              <p className="text-xl sm:text-2xl text-[#8A9BB0] leading-relaxed">
+                Design, develop, deploy. We build what we plan.
+              </p>
+            </div>
+          </div>
+
+          {/* Panel 5: Growth */}
+          <div className="w-screen h-screen flex flex-col items-center justify-center px-8 sm:px-12 relative overflow-hidden flex-shrink-0">
+            <div className="absolute inset-0 bg-gradient-to-br from-[#00C4AF]/10 via-transparent to-[#00A8FF]/10 pointer-events-none" />
+            <div className="relative z-10 text-center max-w-2xl mx-auto">
+              <div className="text-8xl sm:text-9xl font-bold text-[#00C4AF]/20 mb-6 font-[family-name:var(--font-sora)]">
+                05
+              </div>
+              <h3 className="text-5xl sm:text-6xl font-bold mb-6 font-[family-name:var(--font-sora)]">
+                Growth
+              </h3>
+              <p className="text-xl sm:text-2xl text-[#8A9BB0] leading-relaxed">
+                Measure, optimize, scale. The work never stops.
+              </p>
+            </div>
           </div>
         </div>
       </section>

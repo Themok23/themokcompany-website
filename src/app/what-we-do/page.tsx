@@ -12,7 +12,7 @@ export default function WhatWeDoPage() {
   const services = getServiceArms();
 
   return (
-    <div className="w-full bg-[#111318] text-white min-h-screen overflow-x-hidden">
+    <div className="w-full bg-[#090B10] text-white min-h-screen overflow-x-hidden">
       {/* Page Hero */}
       <PageHero
         title="What We Do"
