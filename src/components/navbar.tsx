@@ -82,11 +82,12 @@ export function Navbar() {
           <div className="flex items-center justify-between h-20">
             <Link href="/" className="cursor-pointer">
               <Image
-                src="/mok-logo-light.svg"
+                src="/mok-logo.png"
                 alt="The Mok Company"
                 width={160}
                 height={45}
                 priority
+                className="object-contain brightness-0 invert"
               />
             </Link>
 

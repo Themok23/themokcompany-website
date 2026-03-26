@@ -47,10 +47,11 @@ export function Footer() {
         {/* Logo */}
         <div className="mb-16">
           <Image
-            src="/mok-logo-light.svg"
+            src="/mok-logo.png"
             alt="The Mok Company"
             width={160}
             height={45}
+            className="object-contain brightness-0 invert"
           />
         </div>
 

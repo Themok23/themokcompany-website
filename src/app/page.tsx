@@ -10,6 +10,11 @@ import {
   Cog,
   ArrowUpRight,
   ArrowRight,
+  Search,
+  Map,
+  Wrench,
+  TrendingUp,
+  Sparkles,
 } from 'lucide-react';
 import {
   getHomeHero,
@@ -32,8 +37,7 @@ export default function Home() {
   const whoWeAreItemsRef = useRef<(HTMLDivElement | null)[]>([]);
   const threeArmsRef = useRef<HTMLDivElement>(null);
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
-  const horizontalScrollRef = useRef<HTMLDivElement>(null);
-  const scrollContentRef = useRef<HTMLDivElement>(null);
+  const processCardsRef = useRef<(HTMLDivElement | null)[]>([]);
   const whyMokRef = useRef<HTMLDivElement>(null);
   const whyMokItemsRef = useRef<(HTMLDivElement | null)[]>([]);
   const whoWeWorkRef = useRef<HTMLDivElement>(null);
@@ -248,24 +252,48 @@ export default function Home() {
         });
       }
 
-      // Horizontal Scroll Carousel Section
-      if (horizontalScrollRef.current && scrollContentRef.current) {
-        const scrollContent = scrollContentRef.current;
-        const totalWidth = scrollContent.scrollWidth - window.innerWidth;
+      // Process Cards Section - Stagger Reveal Animation
+      processCardsRef.current.forEach((card, index) => {
+        if (card) {
+          gsap.fromTo(
+            card,
+            {
+              opacity: 0,
+              y: 40,
+            },
+            {
+              opacity: 1,
+              y: 0,
+              duration: 0.8,
+              delay: index * 0.15,
+              ease: 'power2.out',
+              scrollTrigger: {
+                trigger: card,
+                start: 'top 75%',
+                toggleActions: 'play none none reverse',
+              },
+            }
+          );
 
-        gsap.to(scrollContent, {
-          x: -totalWidth,
-          ease: 'none',
-          scrollTrigger: {
-            trigger: horizontalScrollRef.current,
-            start: 'top top',
-            end: `+=${totalWidth + window.innerHeight}`,
-            scrub: 1,
-            pin: true,
-            markers: false,
-          },
-        });
-      }
+          // Hover lift effect
+          const cardElement = card as HTMLElement;
+          cardElement.addEventListener('mouseenter', () => {
+            gsap.to(cardElement, {
+              y: -8,
+              duration: 0.3,
+              ease: 'power2.out',
+            });
+          });
+
+          cardElement.addEventListener('mouseleave', () => {
+            gsap.to(cardElement, {
+              y: 0,
+              duration: 0.3,
+              ease: 'power2.out',
+            });
+          });
+        }
+      });
 
       // Parallax images in sections (subtle y movement on scroll)
       const parallaxElements = containerRef.current?.querySelectorAll('.parallax-image');
@@ -419,15 +447,6 @@ export default function Home() {
       ref={containerRef}
       className="bg-[#090B10] text-white overflow-hidden font-[family-name:var(--font-dm-sans)]"
     >
-      <style>{`
-        .img-tint {
-          filter: grayscale(100%);
-          transition: filter 0.4s ease-in-out;
-        }
-        .img-tint:hover {
-          filter: grayscale(0);
-        }
-      `}</style>
 
       {/* HERO SECTION */}
       <section className="relative min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 overflow-hidden">
@@ -588,92 +607,144 @@ export default function Home() {
         </div>
       </section>
 
-      {/* HORIZONTAL SCROLL CAROUSEL SECTION */}
-      <section
-        ref={horizontalScrollRef}
-        className="relative w-full h-screen overflow-hidden bg-[#0a0c10]"
-      >
-        <div
-          ref={scrollContentRef}
-          className="absolute left-0 top-0 h-full flex"
-          style={{ width: 'fit-content' }}
-        >
-          {/* Panel 1: Our Process */}
-          <div className="w-screen h-screen flex flex-col items-center justify-center px-8 sm:px-12 relative overflow-hidden flex-shrink-0">
-            <div className="absolute inset-0 bg-gradient-to-br from-[#00C4AF]/10 via-transparent to-[#00A8FF]/10 pointer-events-none" />
-            <div className="relative z-10 text-center max-w-2xl mx-auto">
-              <div className="text-8xl sm:text-9xl font-bold text-[#00C4AF]/20 mb-6 font-[family-name:var(--font-sora)]">
-                01
-              </div>
-              <h3 className="text-5xl sm:text-6xl font-bold mb-6 font-[family-name:var(--font-sora)]">
-                Our Process
-              </h3>
-              <p className="text-xl sm:text-2xl text-[#8A9BB0] leading-relaxed">
-                From insight to execution, every step is intentional.
-              </p>
-            </div>
-          </div>
+      {/* OUR PROCESS SECTION */}
+      <section className="py-32 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
+        <div className="text-center mb-20">
+          <h2 className="text-4xl sm:text-5xl font-bold tracking-tight mb-4 font-[family-name:var(--font-sora)]">
+            Our Process
+          </h2>
+          <p className="text-lg text-[#8A9BB0] max-w-2xl mx-auto">
+            From insight to execution, every step is intentional.
+          </p>
+        </div>
 
-          {/* Panel 2: Discovery */}
-          <div className="w-screen h-screen flex flex-col items-center justify-center px-8 sm:px-12 relative overflow-hidden flex-shrink-0">
-            <div className="absolute inset-0 bg-gradient-to-br from-[#00A8FF]/10 via-transparent to-[#00C4AF]/10 pointer-events-none" />
-            <div className="relative z-10 text-center max-w-2xl mx-auto">
-              <div className="text-8xl sm:text-9xl font-bold text-[#00A8FF]/20 mb-6 font-[family-name:var(--font-sora)]">
-                02
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          {/* Card 1: Discovery */}
+          <div
+            ref={(el) => {
+              if (el) processCardsRef.current[0] = el;
+            }}
+            className="relative p-8 rounded-xl bg-[#1A1D24]/80 backdrop-blur-sm border border-[#1F2733] hover:border-[#00C4AF]/60 hover:shadow-[0_0_30px_rgba(0,196,175,0.15)] transition-all duration-300 group"
+          >
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-5">
+              <span className="text-9xl font-bold text-[#00C4AF] font-[family-name:var(--font-sora)]">
+                01
+              </span>
+            </div>
+
+            <div className="relative z-10">
+              <div className="mb-6">
+                <Search size={40} className="text-[#00C4AF]" />
               </div>
-              <h3 className="text-5xl sm:text-6xl font-bold mb-6 font-[family-name:var(--font-sora)]">
+              <h3 className="text-2xl font-bold mb-3 font-[family-name:var(--font-sora)]">
                 Discovery
               </h3>
-              <p className="text-xl sm:text-2xl text-[#8A9BB0] leading-relaxed">
+              <p className="text-[#8A9BB0]">
                 We start by understanding your world. Market, audience, competition.
               </p>
             </div>
           </div>
 
-          {/* Panel 3: Strategy */}
-          <div className="w-screen h-screen flex flex-col items-center justify-center px-8 sm:px-12 relative overflow-hidden flex-shrink-0">
-            <div className="absolute inset-0 bg-gradient-to-br from-[#00C4AF]/10 via-transparent to-[#00A8FF]/10 pointer-events-none" />
-            <div className="relative z-10 text-center max-w-2xl mx-auto">
-              <div className="text-8xl sm:text-9xl font-bold text-[#00C4AF]/20 mb-6 font-[family-name:var(--font-sora)]">
-                03
+          {/* Card 2: Strategy */}
+          <div
+            ref={(el) => {
+              if (el) processCardsRef.current[1] = el;
+            }}
+            className="relative p-8 rounded-xl bg-[#1A1D24]/80 backdrop-blur-sm border border-[#1F2733] hover:border-[#00C4AF]/60 hover:shadow-[0_0_30px_rgba(0,196,175,0.15)] transition-all duration-300 group"
+          >
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-5">
+              <span className="text-9xl font-bold text-[#00C4AF] font-[family-name:var(--font-sora)]">
+                02
+              </span>
+            </div>
+
+            <div className="relative z-10">
+              <div className="mb-6">
+                <Map size={40} className="text-[#00C4AF]" />
               </div>
-              <h3 className="text-5xl sm:text-6xl font-bold mb-6 font-[family-name:var(--font-sora)]">
+              <h3 className="text-2xl font-bold mb-3 font-[family-name:var(--font-sora)]">
                 Strategy
               </h3>
-              <p className="text-xl sm:text-2xl text-[#8A9BB0] leading-relaxed">
+              <p className="text-[#8A9BB0]">
                 A clear roadmap built on data, not guesswork.
               </p>
             </div>
           </div>
 
-          {/* Panel 4: Execution */}
-          <div className="w-screen h-screen flex flex-col items-center justify-center px-8 sm:px-12 relative overflow-hidden flex-shrink-0">
-            <div className="absolute inset-0 bg-gradient-to-br from-[#00A8FF]/10 via-transparent to-[#00C4AF]/10 pointer-events-none" />
-            <div className="relative z-10 text-center max-w-2xl mx-auto">
-              <div className="text-8xl sm:text-9xl font-bold text-[#00A8FF]/20 mb-6 font-[family-name:var(--font-sora)]">
-                04
+          {/* Card 3: Execution */}
+          <div
+            ref={(el) => {
+              if (el) processCardsRef.current[2] = el;
+            }}
+            className="relative p-8 rounded-xl bg-[#1A1D24]/80 backdrop-blur-sm border border-[#1F2733] hover:border-[#00C4AF]/60 hover:shadow-[0_0_30px_rgba(0,196,175,0.15)] transition-all duration-300 group"
+          >
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-5">
+              <span className="text-9xl font-bold text-[#00C4AF] font-[family-name:var(--font-sora)]">
+                03
+              </span>
+            </div>
+
+            <div className="relative z-10">
+              <div className="mb-6">
+                <Wrench size={40} className="text-[#00C4AF]" />
               </div>
-              <h3 className="text-5xl sm:text-6xl font-bold mb-6 font-[family-name:var(--font-sora)]">
+              <h3 className="text-2xl font-bold mb-3 font-[family-name:var(--font-sora)]">
                 Execution
               </h3>
-              <p className="text-xl sm:text-2xl text-[#8A9BB0] leading-relaxed">
+              <p className="text-[#8A9BB0]">
                 Design, develop, deploy. We build what we plan.
               </p>
             </div>
           </div>
 
-          {/* Panel 5: Growth */}
-          <div className="w-screen h-screen flex flex-col items-center justify-center px-8 sm:px-12 relative overflow-hidden flex-shrink-0">
-            <div className="absolute inset-0 bg-gradient-to-br from-[#00C4AF]/10 via-transparent to-[#00A8FF]/10 pointer-events-none" />
-            <div className="relative z-10 text-center max-w-2xl mx-auto">
-              <div className="text-8xl sm:text-9xl font-bold text-[#00C4AF]/20 mb-6 font-[family-name:var(--font-sora)]">
-                05
+          {/* Card 4: Growth - Centered on second row */}
+          <div
+            ref={(el) => {
+              if (el) processCardsRef.current[3] = el;
+            }}
+            className="relative p-8 rounded-xl bg-[#1A1D24]/80 backdrop-blur-sm border border-[#1F2733] hover:border-[#00C4AF]/60 hover:shadow-[0_0_30px_rgba(0,196,175,0.15)] transition-all duration-300 group md:col-start-1"
+          >
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-5">
+              <span className="text-9xl font-bold text-[#00C4AF] font-[family-name:var(--font-sora)]">
+                04
+              </span>
+            </div>
+
+            <div className="relative z-10">
+              <div className="mb-6">
+                <TrendingUp size={40} className="text-[#00C4AF]" />
               </div>
-              <h3 className="text-5xl sm:text-6xl font-bold mb-6 font-[family-name:var(--font-sora)]">
+              <h3 className="text-2xl font-bold mb-3 font-[family-name:var(--font-sora)]">
                 Growth
               </h3>
-              <p className="text-xl sm:text-2xl text-[#8A9BB0] leading-relaxed">
+              <p className="text-[#8A9BB0]">
                 Measure, optimize, scale. The work never stops.
+              </p>
+            </div>
+          </div>
+
+          {/* Card 5: Innovation - Centered on second row */}
+          <div
+            ref={(el) => {
+              if (el) processCardsRef.current[4] = el;
+            }}
+            className="relative p-8 rounded-xl bg-[#1A1D24]/80 backdrop-blur-sm border border-[#1F2733] hover:border-[#00C4AF]/60 hover:shadow-[0_0_30px_rgba(0,196,175,0.15)] transition-all duration-300 group md:col-start-2"
+          >
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-5">
+              <span className="text-9xl font-bold text-[#00C4AF] font-[family-name:var(--font-sora)]">
+                05
+              </span>
+            </div>
+
+            <div className="relative z-10">
+              <div className="mb-6">
+                <Sparkles size={40} className="text-[#00C4AF]" />
+              </div>
+              <h3 className="text-2xl font-bold mb-3 font-[family-name:var(--font-sora)]">
+                Innovation
+              </h3>
+              <p className="text-[#8A9BB0]">
+                Push boundaries. Challenge norms. Build what's next.
               </p>
             </div>
           </div>
