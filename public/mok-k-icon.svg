@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 240" fill="none">
+  <defs>
+    <linearGradient id="kRibbon1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#00C4AF"/>
+      <stop offset="40%" style="stop-color:#00D4B8"/>
+      <stop offset="70%" style="stop-color:#2DD4BF"/>
+      <stop offset="100%" style="stop-color:#4ADE80"/>
+    </linearGradient>
+    <linearGradient id="kRibbon2" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#00A8FF"/>
+      <stop offset="30%" style="stop-color:#00C4AF"/>
+      <stop offset="100%" style="stop-color:#06B6D4"/>
+    </linearGradient>
+    <linearGradient id="kShadow" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#008F7D"/>
+      <stop offset="100%" style="stop-color:#006B5A"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <!-- K stem - left vertical bar with 3D ribbon effect -->
+  <!-- Back face (shadow) -->
+  <path d="M20 10 L55 10 L55 230 L20 230 Z" fill="url(#kShadow)" opacity="0.4"/>
+  <!-- Front face -->
+  <path d="M15 5 L50 5 L50 235 L15 235 Z" fill="url(#kRibbon1)" filter="url(#glow)"/>
+  <!-- 3D edge -->
+  <path d="M50 5 L55 10 L55 230 L50 235 Z" fill="url(#kShadow)" opacity="0.6"/>
+  
+  <!-- K upper arm - diagonal going up-right with ribbon twist -->
+  <!-- Back shadow -->
+  <path d="M55 130 L60 125 L170 15 L175 20 L165 30 L60 135 Z" fill="url(#kShadow)" opacity="0.4"/>
+  <!-- Front face -->
+  <path d="M50 125 L55 118 L160 5 L175 5 L170 15 L55 130 Z" fill="url(#kRibbon2)" filter="url(#glow)"/>
+  <!-- Ribbon twist highlight -->
+  <path d="M80 100 L120 60 L125 63 L85 103 Z" fill="rgba(255,255,255,0.15)"/>
+  
+  <!-- K lower arm - diagonal going down-right with ribbon twist -->
+  <!-- Back shadow -->
+  <path d="M55 135 L60 140 L175 230 L170 235 L165 230 L55 140 Z" fill="url(#kShadow)" opacity="0.4"/>
+  <!-- Front face -->
+  <path d="M50 130 L55 135 L170 235 L185 235 L175 225 L55 125 Z" fill="url(#kRibbon1)" filter="url(#glow)"/>
+  <!-- Ribbon twist highlight -->
+  <path d="M85 150 L125 190 L120 193 L80 153 Z" fill="rgba(255,255,255,0.15)"/>
+  
+  <!-- Specular highlights on stem -->
+  <path d="M22 10 L30 10 L30 230 L22 230 Z" fill="rgba(255,255,255,0.12)"/>
+</svg>

@@ -1,13 +1,59 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 200" fill="none">
   <defs>
-    <linearGradient id="kiGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#06B6D4;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#4ADE80;stop-opacity:1" />
+    <linearGradient id="mokRibbon" x1="0%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" stop-color="#06B6D4"/>
+      <stop offset="35%" stop-color="#00C4AF"/>
+      <stop offset="65%" stop-color="#2DD4BF"/>
+      <stop offset="100%" stop-color="#4ADE80"/>
+    </linearGradient>
+    <linearGradient id="mokRibbonShadow" x1="0%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" stop-color="#0891B2"/>
+      <stop offset="50%" stop-color="#059669"/>
+      <stop offset="100%" stop-color="#16A34A"/>
     </linearGradient>
   </defs>
-  <rect width="40" height="40" rx="8" fill="#1B2559"/>
-  <!-- M -->
-  <path d="M6 30V10h3.5l5.5 10 5.5-10H24v20h-3.5V16L16 26h-2L9.5 16v14H6z" fill="white"/>
-  <!-- K accent bar -->
-  <rect x="26" y="28" width="8" height="3" rx="1.5" fill="url(#kiGrad)"/>
+
+  <!-- Upper ribbon arm: left-center to upper-right with smooth curve -->
+  <path d="
+    M 6 104
+    C 6 98, 14 84, 28 68
+    C 48 44, 78 22, 114 6
+    L 134 2
+    C 130 6, 124 12, 114 20
+    C 78 48, 48 70, 28 88
+    C 16 98, 10 103, 10 104
+    Z
+  " fill="url(#mokRibbon)"/>
+
+  <!-- Upper arm edge -->
+  <path d="
+    M 114 6 L 134 2 L 138 7 L 118 11 Z
+  " fill="url(#mokRibbonShadow)" opacity="0.6"/>
+
+  <!-- Upper arm specular highlight -->
+  <path d="
+    M 50 55 C 62 44, 78 32, 90 24 L 93 27 C 81 35, 65 47, 53 58 Z
+  " fill="rgba(255,255,255,0.2)"/>
+
+  <!-- Lower ribbon arm: left-center to lower-right with smooth curve -->
+  <path d="
+    M 10 104
+    C 10 105, 16 110, 28 120
+    C 48 138, 78 160, 114 188
+    C 124 196, 130 198, 134 198
+    L 114 194
+    C 78 168, 48 144, 28 124
+    C 14 112, 6 106, 6 104
+    Z
+  " fill="url(#mokRibbon)"/>
+
+  <!-- Lower arm edge -->
+  <path d="
+    M 114 194 L 134 198 L 138 193 L 118 189 Z
+  " fill="url(#mokRibbonShadow)" opacity="0.6"/>
+
+  <!-- Lower arm specular highlight -->
+  <path d="
+    M 53 145 C 65 155, 81 167, 93 175 L 90 178 C 78 170, 62 158, 50 148 Z
+  " fill="rgba(255,255,255,0.2)"/>
 </svg>

@@ -1,28 +1,78 @@
 "use client";
 
-import { useRef } from "react";
-import { useGsapReveal } from "@/lib/gsapUtils";
+import { useEffect, useRef } from "react";
+import Image from "next/image";
+import gsap from "gsap";
+import ScrollTrigger from "gsap/ScrollTrigger";
 import { PageHero } from "@/components/pageHero";
 import { SectionHeading } from "@/components/sectionHeading";
+import { CTASection } from "@/components/ctaSection";
 import { ArrowRight } from "lucide-react";
 import {
   getPositions,
   getCareersCulture,
 } from "@/content/careers";
 
+gsap.registerPlugin(ScrollTrigger);
+
 export default function CareersPage() {
-  const cultureRef = useGsapReveal({ duration: 0.8, delay: 0.1 });
-  const positionsRef = useGsapReveal({
-    duration: 0.8,
-    delay: 0.2,
-    stagger: 0.08,
-  });
+  const containerRef = useRef<HTMLDivElement>(null);
+  const cultureItemsRef = useRef<(HTMLDivElement | null)[]>([]);
+  const positionCardsRef = useRef<(HTMLDivElement | null)[]>([]);
 
   const positions = getPositions();
   const culture = getCareersCulture();
 
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    const listeners: Array<{ element: HTMLElement; event: string; handler: EventListener }> = [];
+
+    const ctx = gsap.context(() => {
+      // Culture items: staggered scroll reveal
+      cultureItemsRef.current.forEach((item, index) => {
+        if (item) {
+          gsap.fromTo(item,
+            { opacity: 0, y: 30, x: -20 },
+            {
+              opacity: 1, y: 0, x: 0, duration: 0.6, delay: index * 0.12, ease: "power2.out",
+              scrollTrigger: { trigger: item, start: "top 85%", toggleActions: "play none none none" },
+            }
+          );
+        }
+      });
+
+      // Position cards: scroll reveal + hover lift
+      positionCardsRef.current.forEach((card, index) => {
+        if (card) {
+          gsap.fromTo(card,
+            { opacity: 0, y: 50, scale: 0.9 },
+            {
+              opacity: 1, y: 0, scale: 1, duration: 0.7, delay: index * 0.15, ease: "power2.out",
+              scrollTrigger: { trigger: card, start: "top 80%", toggleActions: "play none none none" },
+            }
+          );
+
+          // Hover lift
+          const el = card as HTMLElement;
+          const enter = () => gsap.to(el, { y: -8, duration: 0.3, ease: "power2.out", overwrite: "auto" });
+          const leave = () => gsap.to(el, { y: 0, duration: 0.3, ease: "power2.out", overwrite: "auto" });
+          el.addEventListener("mouseenter", enter);
+          el.addEventListener("mouseleave", leave);
+          listeners.push({ element: el, event: "mouseenter", handler: enter });
+          listeners.push({ element: el, event: "mouseleave", handler: leave });
+        }
+      });
+    }, containerRef);
+
+    return () => {
+      listeners.forEach(({ element, event, handler }) => element.removeEventListener(event, handler));
+      ctx.revert();
+    };
+  }, []);
+
   return (
-    <div className="w-full bg-[#090B10] text-white min-h-screen overflow-x-hidden">
+    <div ref={containerRef} className="w-full text-white min-h-screen overflow-x-hidden relative z-[1] font-body">
       {/* Page Hero */}
       <PageHero
         title="Careers"
@@ -30,12 +80,22 @@ export default function CareersPage() {
       />
 
       {/* Culture Section */}
-      <section className="border-b border-[#1F2733] py-24 px-6 md:px-12 lg:px-20">
-        <div ref={cultureRef} className="max-w-6xl mx-auto">
+      <section className="section-fade border-b border-border py-32 px-4 sm:px-6 lg:px-8 relative">
+        <div className="absolute inset-0 overflow-hidden -z-10">
+          <Image
+            src="/images/team.jpg"
+            alt="Team culture at MOK"
+            fill
+            className="object-cover img-tint opacity-10"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#060810] via-transparent to-[#060810]" />
+        </div>
+        <div className="max-w-6xl mx-auto">
           <SectionHeading
             label={culture.title}
             title="Our Culture"
             description={culture.description}
+            animateMode="words"
           />
 
           {culture.items && culture.items.length > 0 && (
@@ -43,13 +103,13 @@ export default function CareersPage() {
               {culture.items.map((item, idx) => (
                 <div
                   key={idx}
-                  data-reveal
-                  className="flex items-start gap-4 p-6 border border-[#1F2733] rounded-lg bg-[#1A1D24] hover:border-[#00C4AF]/30 transition-colors"
+                  ref={(el) => { if (el) cultureItemsRef.current[idx] = el; }}
+                  className="flex items-start gap-4 p-6 bg-surface/60 backdrop-blur-sm border border-border/60 rounded-xl hover:border-primary/30 transition-colors"
                 >
-                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-[#00C4AF]/20 border border-[#00C4AF]/40 flex items-center justify-center mt-1">
-                    <div className="w-2 h-2 bg-[#00C4AF] rounded-full" />
+                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/20 border border-primary/40 flex items-center justify-center mt-1">
+                    <div className="w-2 h-2 bg-primary rounded-full" />
                   </div>
-                  <p className="text-[#8A9BB0] leading-relaxed font-[family-name:var(--font-dm-sans)]">
+                  <p className="text-muted leading-relaxed font-body">
                     {item}
                   </p>
                 </div>
@@ -60,49 +120,47 @@ export default function CareersPage() {
       </section>
 
       {/* Open Positions Section */}
-      <section className="py-24 px-6 md:px-12 lg:px-20">
+      <section className="py-32 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
           <SectionHeading
             label="Open Positions"
             title="Join our team"
             description="We are actively seeking talented individuals who are passionate about digital transformation and excellence."
+            animateMode="gradient"
           />
 
-          <div
-            ref={positionsRef}
-            className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12"
-          >
-            {positions.map((position) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
+            {positions.map((position, idx) => (
               <div
                 key={position.id}
-                data-reveal
-                className="group border border-[#1F2733] rounded-lg p-8 hover:border-[#00C4AF]/30 transition-colors bg-[#1A1D24]"
+                ref={(el) => { if (el) positionCardsRef.current[idx] = el; }}
+                className="group bg-surface/60 backdrop-blur-sm border border-border/60 rounded-xl p-8 hover:border-primary/30 transition-colors"
               >
                 <div className="mb-6">
-                  <h3 className="text-2xl font-semibold text-white mb-4 group-hover:text-[#00C4AF] transition-colors font-[family-name:var(--font-sora)]">
+                  <h3 className="text-2xl font-semibold text-white mb-4 group-hover:text-primary transition-colors font-heading">
                     {position.title}
                   </h3>
 
                   <div className="flex flex-wrap gap-3">
-                    <span className="px-3 py-1 bg-[#00C4AF]/10 text-[#00C4AF] text-xs font-semibold rounded-full uppercase tracking-wide font-[family-name:var(--font-sora)]">
+                    <span className="px-3 py-1 bg-primary/10 text-primary text-xs font-semibold rounded-full uppercase tracking-wide font-heading">
                       {position.department}
                     </span>
-                    <span className="px-3 py-1 border border-[#1F2733] text-[#8A9BB0] text-xs font-semibold rounded-full uppercase tracking-wide font-[family-name:var(--font-sora)]">
+                    <span className="px-3 py-1 border border-border text-muted text-xs font-semibold rounded-full uppercase tracking-wide font-heading">
                       {position.location}
                     </span>
-                    <span className="px-3 py-1 border border-[#1F2733] text-[#8A9BB0] text-xs font-semibold rounded-full uppercase tracking-wide font-[family-name:var(--font-sora)]">
+                    <span className="px-3 py-1 border border-border text-muted text-xs font-semibold rounded-full uppercase tracking-wide font-heading">
                       {position.type}
                     </span>
                   </div>
                 </div>
 
-                <p className="text-[#8A9BB0] leading-relaxed mb-6 font-[family-name:var(--font-dm-sans)]">
+                <p className="text-muted leading-relaxed mb-6 font-body">
                   {position.description}
                 </p>
 
                 <a
                   href="/contact"
-                  className="inline-flex items-center gap-2 text-[#00C4AF] hover:text-white transition-colors font-semibold font-[family-name:var(--font-sora)]"
+                  className="inline-flex items-center gap-2 text-primary hover:text-white transition-colors font-semibold font-heading"
                 >
                   Apply Now
                   <ArrowRight className="w-4 h-4" />
@@ -113,7 +171,7 @@ export default function CareersPage() {
 
           {positions.length === 0 && (
             <div className="text-center py-12">
-              <p className="text-[#8A9BB0] text-lg font-[family-name:var(--font-dm-sans)]">
+              <p className="text-muted text-lg font-body">
                 No open positions at the moment. Check back soon!
               </p>
             </div>
@@ -122,23 +180,12 @@ export default function CareersPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="border-t border-[#1F2733] py-16 px-6 md:px-12 lg:px-20 bg-[#1A1D24]">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-light mb-6 font-[family-name:var(--font-sora)]">
-            Do not see your role? We are always looking.
-          </h2>
-          <p className="text-lg text-[#8A9BB0] mb-8 font-[family-name:var(--font-dm-sans)]">
-            If you believe you can contribute to our mission, reach out and tell us why.
-          </p>
-          <a
-            href="/contact"
-            className="inline-flex items-center gap-2 px-8 py-4 bg-[#00C4AF] text-[#111318] font-semibold hover:bg-[#00C4AF]/90 transition-colors rounded-lg font-[family-name:var(--font-sora)]"
-          >
-            Get in Touch
-            <ArrowRight className="w-5 h-5" />
-          </a>
-        </div>
-      </section>
+      <CTASection
+        title="Do not see your role? We are always looking."
+        description="If you believe you can contribute to our mission, reach out and tell us why."
+        buttonLabel="Get in Touch"
+        buttonHref="/contact"
+      />
     </div>
   );
 }

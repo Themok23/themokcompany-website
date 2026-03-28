@@ -5,6 +5,9 @@ import { useEffect, useRef } from 'react';
 interface Star {
   baseX: number;
   baseY: number;
+  // Smooth attraction offset - lerps toward target each frame
+  attractX: number;
+  attractY: number;
   size: number;
   color: string;
   baseOpacity: number;
@@ -12,6 +15,15 @@ interface Star {
   twinkleSpeed: number;
   depth: number;
   glowSize: number;
+  // Center convergence - stars slowly drift toward center
+  convergeX: number;
+  convergeY: number;
+  // Ambient drift - subtle constant movement
+  driftPhaseX: number;
+  driftPhaseY: number;
+  driftSpeedX: number;
+  driftSpeedY: number;
+  driftRadius: number;
 }
 
 interface NebulaParticle {
@@ -33,24 +45,34 @@ interface MousePos {
 }
 
 const STARFIELD_CONFIG = {
-  desktop: 280,
-  mobile: 120,
+  desktop: 480,
+  mobile: 220,
   minSize: 0.3,
-  maxSize: 3,
-  cursorGlowRadius: 250,
-  cursorGlowLerpSpeed: 0.12,
+  maxSize: 3.2,
+  cursorGlowRadius: 300,
+  // Smaller radius so only nearby stars are affected
+  cursorAttractionRadius: 220,
+  // How close stars can get to cursor (0 = all the way, 1 = no movement)
+  cursorAttractionStrength: 0.85,
+  // Lerp speed per frame (~0.025 at 60fps = ~2 second ease)
+  cursorAttractionLerp: 0.025,
+  cursorClarityRadius: 250,
+  cursorGlowLerpSpeed: 0.14,
   scrollParallaxStrength: 0.5,
   mouseParallaxStrength: 0.02,
+  // Center convergence - forms a bright cluster at screen center
+  convergenceStrength: 0.18,
+  convergenceLerp: 0.003,
 };
 
 const NEBULA_CONFIG = {
-  particleCount: 16,
+  particleCount: 28,
   minRadius: 150,
-  maxRadius: 350,
+  maxRadius: 400,
   minOpacity: 0.02,
-  maxOpacity: 0.06,
-  driftSpeed: 0.12,
-  pulseSpeed: 0.01,
+  maxOpacity: 0.08,
+  driftSpeed: 0.1,
+  pulseSpeed: 0.008,
 };
 
 const COLORS = {
@@ -60,41 +82,54 @@ const COLORS = {
   cyan: '#00A8FF',
 };
 
+const RGB_CACHE: Record<string, string> = {
+  '#FFFFFF': '255, 255, 255',
+  '#E6F2FF': '230, 242, 255',
+  '#00C4AF': '0, 196, 175',
+  '#00A8FF': '0, 168, 255',
+};
+
 function hexToRgb(hex: string): string {
-  if (hex === COLORS.white) return '255, 255, 255';
-  if (hex === COLORS.blueWhite) return '230, 242, 255';
-  if (hex === COLORS.teal) return '0, 196, 175';
-  if (hex === COLORS.cyan) return '0, 168, 255';
-  return '255, 255, 255';
+  return RGB_CACHE[hex] ?? '255, 255, 255';
 }
 
 export function CanvasBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const starsRef = useRef<Star[]>([]);
   const nebulaRef = useRef<NebulaParticle[]>([]);
-  const mouseRef = useRef<MousePos>({ x: 0, y: 0 });
-  const mouseGlowRef = useRef<MousePos>({ x: 0, y: 0 });
+  const mouseRef = useRef<MousePos>({ x: -1000, y: -1000 });
+  const mouseGlowRef = useRef<MousePos>({ x: -1000, y: -1000 });
   const scrollRef = useRef<number>(0);
   const animationIdRef = useRef<number>(0);
   const contextRef = useRef<CanvasRenderingContext2D | null>(null);
+  const dprRef = useRef<number>(1);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d', { alpha: true });
     if (!ctx) return;
     contextRef.current = ctx;
 
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    dprRef.current = dpr;
 
     const resizeCanvas = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
+      canvas.style.width = `${w}px`;
+      canvas.style.height = `${h}px`;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
 
     const initializeStars = () => {
-      const starCount = window.innerWidth > 768 ? STARFIELD_CONFIG.desktop : STARFIELD_CONFIG.mobile;
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      const starCount = w > 768 ? STARFIELD_CONFIG.desktop : STARFIELD_CONFIG.mobile;
       const stars: Star[] = [];
       const starColors = [COLORS.white, COLORS.white, COLORS.blueWhite, COLORS.teal, COLORS.cyan];
 
@@ -106,15 +141,24 @@ export function CanvasBackground() {
           : STARFIELD_CONFIG.minSize + Math.random() * 1;
 
         stars.push({
-          baseX: Math.random() * canvas.width * 1.4 - canvas.width * 0.2,
-          baseY: Math.random() * canvas.height * 1.4 - canvas.height * 0.2,
+          baseX: Math.random() * w * 1.4 - w * 0.2,
+          baseY: Math.random() * h * 1.4 - h * 0.2,
+          attractX: 0,
+          attractY: 0,
           size,
           color: starColors[Math.floor(Math.random() * starColors.length)],
           baseOpacity: 0.15 + depth * 0.75,
           twinklePhase: Math.random() * Math.PI * 2,
-          twinkleSpeed: 0.02 + Math.random() * 0.04,
+          twinkleSpeed: 0.015 + Math.random() * 0.035,
           depth,
           glowSize: isBright ? size * 4 + Math.random() * 6 : size * 2,
+          convergeX: 0,
+          convergeY: 0,
+          driftPhaseX: Math.random() * Math.PI * 2,
+          driftPhaseY: Math.random() * Math.PI * 2,
+          driftSpeedX: 0.003 + Math.random() * 0.006,
+          driftSpeedY: 0.002 + Math.random() * 0.005,
+          driftRadius: 1.5 + Math.random() * 3.5,
         });
       }
 
@@ -122,21 +166,23 @@ export function CanvasBackground() {
     };
 
     const initializeNebula = () => {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
       const nebulas: NebulaParticle[] = [];
       const nebulaColors = [COLORS.teal, COLORS.cyan];
 
       for (let i = 0; i < NEBULA_CONFIG.particleCount; i++) {
         const depth = 0.2 + Math.random() * 0.6;
         nebulas.push({
-          x: Math.random() * canvas.width * 1.2 - canvas.width * 0.1,
-          y: Math.random() * canvas.height * 1.2 - canvas.height * 0.1,
+          x: Math.random() * w * 1.2 - w * 0.1,
+          y: Math.random() * h * 1.2 - h * 0.1,
           vx: (Math.random() - 0.5) * NEBULA_CONFIG.driftSpeed,
           vy: (Math.random() - 0.5) * NEBULA_CONFIG.driftSpeed,
           radius: Math.random() * (NEBULA_CONFIG.maxRadius - NEBULA_CONFIG.minRadius) + NEBULA_CONFIG.minRadius,
           baseOpacity: Math.random() * (NEBULA_CONFIG.maxOpacity - NEBULA_CONFIG.minOpacity) + NEBULA_CONFIG.minOpacity,
           color: nebulaColors[Math.floor(Math.random() * nebulaColors.length)],
           pulsePhase: Math.random() * Math.PI * 2,
-          pulseSpeed: NEBULA_CONFIG.pulseSpeed + Math.random() * 0.005,
+          pulseSpeed: NEBULA_CONFIG.pulseSpeed + Math.random() * 0.004,
           depth,
         });
       }
@@ -148,105 +194,168 @@ export function CanvasBackground() {
 
     const getParallaxOffset = (depth: number): { x: number; y: number } => {
       const scrollY = scrollRef.current;
-      const mouseOffsetX = (mouseGlowRef.current.x - canvas.width / 2) * STARFIELD_CONFIG.mouseParallaxStrength;
-      const mouseOffsetY = (mouseGlowRef.current.y - canvas.height / 2) * STARFIELD_CONFIG.mouseParallaxStrength;
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      const mouseOffsetX = (mouseGlowRef.current.x - w / 2) * STARFIELD_CONFIG.mouseParallaxStrength;
+      const mouseOffsetY = (mouseGlowRef.current.y - h / 2) * STARFIELD_CONFIG.mouseParallaxStrength;
 
       const parallaxFactor = depth * STARFIELD_CONFIG.scrollParallaxStrength;
       const yOffset = -scrollY * parallaxFactor;
-      const xOffset = mouseOffsetX * depth;
-      const yMouseOffset = mouseOffsetY * depth;
 
       return {
-        x: xOffset,
-        y: yOffset + yMouseOffset,
+        x: mouseOffsetX * depth,
+        y: yOffset + mouseOffsetY * depth,
       };
     };
 
     const drawNebulas = () => {
-      const ctx = contextRef.current;
-      if (!ctx) return;
+      const c = contextRef.current;
+      if (!c) return;
+      const w = window.innerWidth;
+      const h = window.innerHeight;
 
-      nebulaRef.current.forEach((nebula) => {
+      // Scroll-based glow intensifier: ramps up after scrolling past hero (~100vh)
+      const scrollY = scrollRef.current;
+      const heroHeight = h;
+      const scrollGlow = Math.min(1, Math.max(0, (scrollY - heroHeight * 0.3) / (heroHeight * 0.7)));
+      const glowMultiplier = 1 + scrollGlow * 1.8;
+
+      for (let i = 0; i < nebulaRef.current.length; i++) {
+        const nebula = nebulaRef.current[i];
         nebula.x += nebula.vx;
         nebula.y += nebula.vy;
 
-        if (nebula.x < -nebula.radius * 2) nebula.x = canvas.width + nebula.radius;
-        if (nebula.x > canvas.width + nebula.radius * 2) nebula.x = -nebula.radius;
-        if (nebula.y < -nebula.radius * 2) nebula.y = canvas.height + nebula.radius;
-        if (nebula.y > canvas.height + nebula.radius * 2) nebula.y = -nebula.radius;
+        if (nebula.x < -nebula.radius * 2) nebula.x = w + nebula.radius;
+        if (nebula.x > w + nebula.radius * 2) nebula.x = -nebula.radius;
+        if (nebula.y < -nebula.radius * 2) nebula.y = h + nebula.radius;
+        if (nebula.y > h + nebula.radius * 2) nebula.y = -nebula.radius;
 
         nebula.pulsePhase += nebula.pulseSpeed;
         const pulseFactor = 0.6 + Math.sin(nebula.pulsePhase) * 0.4;
-        const currentOpacity = nebula.baseOpacity * pulseFactor;
+        const currentOpacity = nebula.baseOpacity * pulseFactor * glowMultiplier;
 
         const offset = getParallaxOffset(nebula.depth);
         const drawX = nebula.x + offset.x;
         const drawY = nebula.y + offset.y;
 
-        const gradient = ctx.createRadialGradient(drawX, drawY, 0, drawX, drawY, nebula.radius);
+        const gradient = c.createRadialGradient(drawX, drawY, 0, drawX, drawY, nebula.radius);
         const rgbColor = hexToRgb(nebula.color);
         gradient.addColorStop(0, `rgba(${rgbColor}, ${currentOpacity})`);
         gradient.addColorStop(0.3, `rgba(${rgbColor}, ${currentOpacity * 0.5})`);
         gradient.addColorStop(1, `rgba(${rgbColor}, 0)`);
 
         ctx.fillStyle = gradient;
-        ctx.fillRect(
-          drawX - nebula.radius,
-          drawY - nebula.radius,
-          nebula.radius * 2,
-          nebula.radius * 2
-        );
-      });
+        c.fillRect(drawX - nebula.radius, drawY - nebula.radius, nebula.radius * 2, nebula.radius * 2);
+      }
     };
 
     const drawStars = (cursorX: number, cursorY: number) => {
-      const ctx = contextRef.current;
-      if (!ctx) return;
+      const c = contextRef.current;
+      if (!c) return;
+      const w = window.innerWidth;
+      const h = window.innerHeight;
 
-      starsRef.current.forEach((star) => {
+      // Scroll-based star glow boost
+      const scrollY = scrollRef.current;
+      const heroH = h;
+      const starScrollGlow = Math.min(1, Math.max(0, (scrollY - heroH * 0.3) / (heroH * 0.7)));
+      const starGlowBoost = 1 + starScrollGlow * 0.6;
+      const clarityR = STARFIELD_CONFIG.cursorClarityRadius;
+      const attractR = STARFIELD_CONFIG.cursorAttractionRadius;
+      const attractStr = STARFIELD_CONFIG.cursorAttractionStrength;
+      const attractLerp = STARFIELD_CONFIG.cursorAttractionLerp;
+
+      for (let i = 0; i < starsRef.current.length; i++) {
+        const star = starsRef.current[i];
         star.twinklePhase += star.twinkleSpeed;
 
         const twinkleFactor = 0.4 + Math.sin(star.twinklePhase) * 0.6;
         let currentOpacity = star.baseOpacity * twinkleFactor;
 
         const offset = getParallaxOffset(star.depth);
-        const drawX = star.baseX + offset.x;
-        const drawY = star.baseY + offset.y;
 
-        if (
-          drawX < -20 ||
-          drawX > canvas.width + 20 ||
-          drawY < -20 ||
-          drawY > canvas.height + 20
-        ) {
-          return;
+        // Ambient drift: subtle constant wandering motion
+        star.driftPhaseX += star.driftSpeedX;
+        star.driftPhaseY += star.driftSpeedY;
+        const driftX = Math.sin(star.driftPhaseX) * star.driftRadius * star.depth;
+        const driftY = Math.cos(star.driftPhaseY) * star.driftRadius * star.depth;
+
+        // Center convergence: stars gently drift toward viewport center
+        const centerX = w / 2;
+        const centerY = h / 2;
+        const towardCenterX = (centerX - star.baseX) * STARFIELD_CONFIG.convergenceStrength * star.depth;
+        const towardCenterY = (centerY - star.baseY) * STARFIELD_CONFIG.convergenceStrength * star.depth;
+        star.convergeX = lerp(star.convergeX, towardCenterX, STARFIELD_CONFIG.convergenceLerp);
+        star.convergeY = lerp(star.convergeY, towardCenterY, STARFIELD_CONFIG.convergenceLerp);
+
+        const nominalX = star.baseX + offset.x + star.convergeX + driftX;
+        const nominalY = star.baseY + offset.y + star.convergeY + driftY;
+
+        // Calculate distance from star's base position to cursor
+        const dx = cursorX - nominalX;
+        const dy = cursorY - nominalY;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        // Calculate target attraction offset
+        let targetAttractX = 0;
+        let targetAttractY = 0;
+
+        if (distance < attractR && distance > 0) {
+          // Ease-in curve: stronger pull as stars get closer
+          const t = 1 - distance / attractR;
+          const pullStrength = t * t * attractStr;
+          targetAttractX = dx * pullStrength;
+          targetAttractY = dy * pullStrength;
         }
 
-        const dx = cursorX - drawX;
-        const dy = cursorY - drawY;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        let currentSize = star.size;
-        let cursorBoost = 0;
+        // Smoothly lerp the attraction offset (~2 seconds to reach target)
+        star.attractX = lerp(star.attractX, targetAttractX, attractLerp);
+        star.attractY = lerp(star.attractY, targetAttractY, attractLerp);
 
-        if (distance < STARFIELD_CONFIG.cursorGlowRadius) {
-          cursorBoost = 1 - distance / STARFIELD_CONFIG.cursorGlowRadius;
-          currentOpacity = Math.min(1, currentOpacity + cursorBoost * 0.5);
-          currentSize = star.size + cursorBoost * 2;
+        // Snap to zero if very small (avoid lingering drift)
+        if (Math.abs(star.attractX) < 0.01 && Math.abs(targetAttractX) === 0) star.attractX = 0;
+        if (Math.abs(star.attractY) < 0.01 && Math.abs(targetAttractY) === 0) star.attractY = 0;
+
+        const drawX = nominalX + star.attractX;
+        const drawY = nominalY + star.attractY;
+
+        // Cull offscreen stars
+        if (drawX < -30 || drawX > w + 30 || drawY < -30 || drawY > h + 30) continue;
+
+        let currentSize = star.size;
+        let blurFactor = 0;
+
+        // Cursor clarity effect - sharp near cursor, blurry far away
+        // Use actual drawn position for clarity
+        const actualDx = cursorX - drawX;
+        const actualDy = cursorY - drawY;
+        const actualDist = Math.sqrt(actualDx * actualDx + actualDy * actualDy);
+
+        if (actualDist < clarityR) {
+          const clarityT = 1 - actualDist / clarityR;
+          currentOpacity = Math.min(1, currentOpacity + clarityT * 0.6);
+          currentSize = star.size + clarityT * 2.5;
+          blurFactor = 0;
+        } else {
+          const distanceBeyond = Math.min((actualDist - clarityR) / 400, 1);
+          blurFactor = distanceBeyond * 0.6;
+          currentOpacity *= (1 - blurFactor * 0.3);
         }
 
         const rgbColor = hexToRgb(star.color);
 
-        // ALWAYS draw glow halo for visible stars
-        if (star.size > 0.8 || currentOpacity > 0.3) {
-          const glowRadius = star.glowSize * (0.7 + twinkleFactor * 0.5);
-          const glowOpacity = currentOpacity * 0.15;
+        // Draw glow halo (intensifies on scroll)
+        if (star.size > 0.6 || currentOpacity > 0.25) {
+          const baseGlowRadius = star.glowSize * (0.7 + twinkleFactor * 0.5);
+          const glowRadius = baseGlowRadius * (1 + blurFactor * 1.5) * (1 + starScrollGlow * 0.3);
+          const glowOpacity = currentOpacity * (0.12 + blurFactor * 0.08) * starGlowBoost;
 
-          const glowGrad = ctx.createRadialGradient(
-            drawX, drawY, currentSize * 0.3,
+          const glowGrad = c.createRadialGradient(
+            drawX, drawY, currentSize * 0.2,
             drawX, drawY, glowRadius
           );
           glowGrad.addColorStop(0, `rgba(${rgbColor}, ${glowOpacity * 1.5})`);
-          glowGrad.addColorStop(0.5, `rgba(${rgbColor}, ${glowOpacity * 0.4})`);
+          glowGrad.addColorStop(0.4, `rgba(${rgbColor}, ${glowOpacity * 0.5})`);
           glowGrad.addColorStop(1, `rgba(${rgbColor}, 0)`);
 
           ctx.fillStyle = glowGrad;
@@ -256,74 +365,117 @@ export function CanvasBackground() {
         }
 
         // Star core
-        ctx.fillStyle = `rgba(${rgbColor}, ${currentOpacity})`;
-        ctx.beginPath();
-        ctx.arc(drawX, drawY, currentSize / 2, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Bright inner core for larger stars
-        if (currentSize > 1.2) {
-          ctx.fillStyle = `rgba(${rgbColor}, ${Math.min(1, currentOpacity * 1.4)})`;
+        if (blurFactor < 0.4) {
+          ctx.fillStyle = `rgba(${rgbColor}, ${currentOpacity})`;
           ctx.beginPath();
-          ctx.arc(drawX, drawY, currentSize * 0.2, 0, Math.PI * 2);
+          ctx.arc(drawX, drawY, currentSize / 2, 0, Math.PI * 2);
+          ctx.fill();
+
+          if (currentSize > 1.2) {
+            ctx.fillStyle = `rgba(${rgbColor}, ${Math.min(1, currentOpacity * 1.4)})`;
+            ctx.beginPath();
+            ctx.arc(drawX, drawY, currentSize * 0.2, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        } else {
+          const softRadius = currentSize * (1 + blurFactor * 2);
+          const softGrad = c.createRadialGradient(drawX, drawY, 0, drawX, drawY, softRadius);
+          softGrad.addColorStop(0, `rgba(${rgbColor}, ${currentOpacity * 0.8})`);
+          softGrad.addColorStop(0.5, `rgba(${rgbColor}, ${currentOpacity * 0.3})`);
+          softGrad.addColorStop(1, `rgba(${rgbColor}, 0)`);
+          ctx.fillStyle = softGrad;
+          ctx.beginPath();
+          ctx.arc(drawX, drawY, softRadius, 0, Math.PI * 2);
           ctx.fill();
         }
 
         // Extra glow ring near cursor
-        if (cursorBoost > 0.2) {
-          const extraGlowSize = currentSize * 5 * cursorBoost;
-          const extraGrad = ctx.createRadialGradient(
-            drawX, drawY, 0,
-            drawX, drawY, extraGlowSize
-          );
-          extraGrad.addColorStop(0, `rgba(${rgbColor}, ${cursorBoost * 0.25})`);
+        if (actualDist < clarityR * 0.6) {
+          const boostT = 1 - actualDist / (clarityR * 0.6);
+          const extraGlowSize = currentSize * 5 * boostT;
+          const extraGrad = c.createRadialGradient(drawX, drawY, 0, drawX, drawY, extraGlowSize);
+          extraGrad.addColorStop(0, `rgba(${rgbColor}, ${boostT * 0.2})`);
           extraGrad.addColorStop(1, `rgba(${rgbColor}, 0)`);
           ctx.fillStyle = extraGrad;
           ctx.beginPath();
           ctx.arc(drawX, drawY, extraGlowSize, 0, Math.PI * 2);
           ctx.fill();
         }
-      });
+      }
     };
 
     const drawCursorGlow = (cursorX: number, cursorY: number) => {
-      const ctx = contextRef.current;
-      if (!ctx) return;
+      const c = contextRef.current;
+      if (!c) return;
 
-      const gradient = ctx.createRadialGradient(
-        cursorX, cursorY, 0,
-        cursorX, cursorY, STARFIELD_CONFIG.cursorGlowRadius
-      );
-      gradient.addColorStop(0, 'rgba(0, 196, 175, 0.15)');
-      gradient.addColorStop(0.3, 'rgba(0, 196, 175, 0.06)');
-      gradient.addColorStop(0.7, 'rgba(0, 168, 255, 0.02)');
+      const r = STARFIELD_CONFIG.cursorGlowRadius;
+      const gradient = c.createRadialGradient(cursorX, cursorY, 0, cursorX, cursorY, r);
+      gradient.addColorStop(0, 'rgba(0, 196, 175, 0.12)');
+      gradient.addColorStop(0.25, 'rgba(0, 196, 175, 0.06)');
+      gradient.addColorStop(0.6, 'rgba(0, 168, 255, 0.02)');
       gradient.addColorStop(1, 'rgba(0, 196, 175, 0)');
 
-      ctx.fillStyle = gradient;
-      ctx.beginPath();
-      ctx.arc(cursorX, cursorY, STARFIELD_CONFIG.cursorGlowRadius, 0, Math.PI * 2);
-      ctx.fill();
+      c.fillStyle = gradient;
+      c.beginPath();
+      c.arc(cursorX, cursorY, r, 0, Math.PI * 2);
+      c.fill();
+    };
+
+    // Central "super star" glow - where converging stars cluster
+    const drawCenterStar = (w: number, h: number) => {
+      const c = contextRef.current;
+      if (!c) return;
+      const cx = w / 2;
+      const cy = h / 2;
+
+      // Pulsing glow at center
+      const time = Date.now() * 0.001;
+      const pulse = 0.7 + Math.sin(time * 0.8) * 0.3;
+
+      // Outer soft glow
+      const outerR = 180 * pulse;
+      const outerGrad = c.createRadialGradient(cx, cy, 0, cx, cy, outerR);
+      outerGrad.addColorStop(0, 'rgba(0, 196, 175, 0.04)');
+      outerGrad.addColorStop(0.3, 'rgba(0, 196, 175, 0.02)');
+      outerGrad.addColorStop(0.6, 'rgba(0, 168, 255, 0.01)');
+      outerGrad.addColorStop(1, 'rgba(0, 196, 175, 0)');
+      c.fillStyle = outerGrad;
+      c.beginPath();
+      c.arc(cx, cy, outerR, 0, Math.PI * 2);
+      c.fill();
+
+      // Inner bright core
+      const innerR = 40 * pulse;
+      const innerGrad = c.createRadialGradient(cx, cy, 0, cx, cy, innerR);
+      innerGrad.addColorStop(0, 'rgba(255, 255, 255, 0.06)');
+      innerGrad.addColorStop(0.3, 'rgba(0, 196, 175, 0.04)');
+      innerGrad.addColorStop(1, 'rgba(0, 196, 175, 0)');
+      c.fillStyle = innerGrad;
+      c.beginPath();
+      c.arc(cx, cy, innerR, 0, Math.PI * 2);
+      c.fill();
+
+      // Tiny bright dot at dead center
+      c.fillStyle = 'rgba(255, 255, 255, 0.12)';
+      c.beginPath();
+      c.arc(cx, cy, 2, 0, Math.PI * 2);
+      c.fill();
     };
 
     const animate = () => {
-      const ctx = contextRef.current;
-      if (!ctx) return;
+      const c = contextRef.current;
+      if (!c) return;
+      const w = window.innerWidth;
+      const h = window.innerHeight;
 
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      c.clearRect(0, 0, w, h);
 
-      mouseGlowRef.current.x = lerp(
-        mouseGlowRef.current.x,
-        mouseRef.current.x,
-        STARFIELD_CONFIG.cursorGlowLerpSpeed
-      );
-      mouseGlowRef.current.y = lerp(
-        mouseGlowRef.current.y,
-        mouseRef.current.y,
-        STARFIELD_CONFIG.cursorGlowLerpSpeed
-      );
+      mouseGlowRef.current.x = lerp(mouseGlowRef.current.x, mouseRef.current.x, STARFIELD_CONFIG.cursorGlowLerpSpeed);
+      mouseGlowRef.current.y = lerp(mouseGlowRef.current.y, mouseRef.current.y, STARFIELD_CONFIG.cursorGlowLerpSpeed);
 
       drawNebulas();
       drawStars(mouseGlowRef.current.x, mouseGlowRef.current.y);
+      drawCenterStar(w, h);
       drawCursorGlow(mouseGlowRef.current.x, mouseGlowRef.current.y);
 
       animationIdRef.current = requestAnimationFrame(animate);
@@ -363,15 +515,13 @@ export function CanvasBackground() {
     initializeNebula();
 
     window.addEventListener('resize', handleResize);
-    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
     window.addEventListener('scroll', handleScroll, { passive: true });
 
     animate();
 
     return () => {
-      if (animationIdRef.current) {
-        cancelAnimationFrame(animationIdRef.current);
-      }
+      if (animationIdRef.current) cancelAnimationFrame(animationIdRef.current);
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('scroll', handleScroll);
@@ -381,6 +531,8 @@ export function CanvasBackground() {
   return (
     <canvas
       ref={canvasRef}
+      role="presentation"
+      aria-hidden="true"
       style={{
         position: 'fixed',
         top: 0,

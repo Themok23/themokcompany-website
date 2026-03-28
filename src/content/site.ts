@@ -4,8 +4,8 @@ import type { NavLink, FooterColumn, SiteConfig } from "./types";
 const navLinks = [
   { href: "/", label: "Home" },
   { href: "/about", label: "About" },
-  { href: "/services", label: "What We Do" },
-  { href: "/work", label: "Our Work" },
+  { href: "/what-we-do", label: "What We Do" },
+  { href: "/our-work", label: "Our Work" },
   { href: "/insights", label: "Insights" },
   { href: "/ventures", label: "Ventures" },
   { href: "/contact", label: "Contact" },
@@ -14,29 +14,28 @@ const navLinks = [
 // Footer columns
 const footerColumns = [
   {
-    title: "Company",
+    title: "The Mok Company",
     links: [
       { label: "About", href: "/about" },
+      { label: "Our Philosophy", href: "/about#philosophy" },
       { label: "Leadership", href: "/about#leadership" },
       { label: "Careers", href: "/careers" },
-      { label: "Partnerships", href: "/contact" },
     ],
   },
   {
-    title: "Services",
+    title: "What We Do",
     links: [
-      { label: "The Mok Management", href: "/services/management" },
-      { label: "The Mok Innovations", href: "/services/innovations" },
-      { label: "The Mok Technologies", href: "/services/technologies" },
+      { label: "The Mok Management", href: "/what-we-do#management" },
+      { label: "The Mok Innovations", href: "/what-we-do#innovations" },
+      { label: "The Mok Technologies", href: "/what-we-do#technologies" },
     ],
   },
   {
-    title: "Resources",
+    title: "Insights",
     links: [
-      { label: "Insights", href: "/insights" },
-      { label: "News", href: "/insights?category=articles" },
-      { label: "FAQs", href: "/faq" },
-      { label: "Case Studies", href: "/work" },
+      { label: "Articles", href: "/insights?category=articles" },
+      { label: "Research", href: "/insights?category=research" },
+      { label: "Case Studies", href: "/our-work" },
     ],
   },
   {
@@ -45,7 +44,6 @@ const footerColumns = [
       { label: "Contact Us", href: "/contact" },
       { label: "LinkedIn", href: "https://linkedin.com/company/themokcompany", external: true },
       { label: "Instagram", href: "https://instagram.com/themokcompany", external: true },
-      { label: "X", href: "https://x.com/themokcompany", external: true },
     ],
   },
 ] as const satisfies readonly FooterColumn[];
@@ -72,9 +70,9 @@ const socialLinks = [
 // Site configuration
 const siteConfig: SiteConfig = {
   name: "The Mok Company",
-  tagline: "Digital Transformation for Enterprise",
+  tagline: "Management. Innovation. Technology.",
   description:
-    "We deliver executive corporate presentations, company profile design, AI solutions, web and app development, and business consultancy for enterprises.",
+    "The Mok Company is a 360-degree consultancy combining strategy, product innovation, and technology delivery. We help enterprises transform operations, scale ventures, and drive competitive advantage through integrated consulting and venture building.",
   email: "hello@themok.company",
   location: "Dubai, UAE",
   social: [...socialLinks],
