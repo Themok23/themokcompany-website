@@ -1,13 +1,14 @@
 "use client";
 
-import { useState, useRef } from "react";
-import { useGsapReveal } from "@/lib/gsapUtils";
+import { useState, useEffect, useRef } from "react";
+import gsap from "gsap";
 import { PageHero } from "@/components/pageHero";
 import { ArrowRight, Mail, MapPin } from "lucide-react";
 import { getSiteConfig } from "@/content/site";
 
 export default function ContactPage() {
-  const formRef = useGsapReveal({ duration: 0.8, delay: 0.1 });
+  const formRef = useRef<HTMLDivElement>(null);
+  const sidebarRef = useRef<HTMLDivElement>(null);
   const [formData, setFormData] = useState({
     name: "",
     company: "",
@@ -27,6 +28,29 @@ export default function ContactPage() {
     "Other",
   ];
 
+  // Direct timeline animation on mount - no ScrollTrigger dependency
+  useEffect(() => {
+    const tl = gsap.timeline({ delay: 0.3 });
+    if (formRef.current) {
+      tl.fromTo(
+        formRef.current,
+        { opacity: 0, y: 40 },
+        { opacity: 1, y: 0, duration: 0.8, ease: "power3.out" }
+      );
+    }
+    if (sidebarRef.current) {
+      tl.fromTo(
+        sidebarRef.current,
+        { opacity: 0, y: 30 },
+        { opacity: 1, y: 0, duration: 0.7, ease: "power3.out" },
+        "-=0.5"
+      );
+    }
+    return () => {
+      tl.kill();
+    };
+  }, []);
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
@@ -43,27 +67,27 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="w-full bg-[#090B10] text-white min-h-screen overflow-x-hidden">
+    <div className="w-full text-white min-h-screen overflow-x-hidden relative z-[1]">
       {/* Page Hero */}
       <PageHero
         title="Contact"
-        subtitle="Let us build what is next."
+        subtitle="Let's Build What's Next."
       />
 
-      {/* Contact Section */}
-      <section className="py-24 px-6 md:px-12 lg:px-20">
+      {/* Contact Section - transparent bg, stars show through like homepage */}
+      <section className="py-32 px-4 sm:px-6 lg:px-8 relative">
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
             {/* Form */}
-            <div ref={formRef} data-reveal className="lg:col-span-2">
-              <h2 className="text-3xl font-semibold mb-8 text-white font-[family-name:var(--font-sora)]">
+            <div ref={formRef} className="lg:col-span-2" style={{ opacity: 0 }}>
+              <h2 className="text-3xl font-semibold mb-8 text-white font-heading">
                 Start the Conversation
               </h2>
 
               <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Name */}
                 <div>
-                  <label className="block text-sm font-semibold text-white mb-3 font-[family-name:var(--font-sora)]">
+                  <label className="block text-sm font-semibold text-white mb-3 font-heading">
                     Your Name
                   </label>
                   <input
@@ -72,14 +96,14 @@ export default function ContactPage() {
                     value={formData.name}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 bg-[#1A1D24] border border-[#1F2733] rounded-lg text-white placeholder-[#8A9BB0] focus:outline-none focus:border-[#00C4AF] focus:ring-1 focus:ring-[#00C4AF]/20 transition-colors font-[family-name:var(--font-dm-sans)]"
+                    className="w-full px-4 py-3 bg-surface/80 border border-border rounded-lg text-white placeholder-muted focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-colors font-body backdrop-blur-sm"
                     placeholder="John Doe"
                   />
                 </div>
 
                 {/* Company */}
                 <div>
-                  <label className="block text-sm font-semibold text-white mb-3 font-[family-name:var(--font-sora)]">
+                  <label className="block text-sm font-semibold text-white mb-3 font-heading">
                     Company
                   </label>
                   <input
@@ -87,7 +111,7 @@ export default function ContactPage() {
                     name="company"
                     value={formData.company}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 bg-[#1A1D24] border border-[#1F2733] rounded-lg text-white placeholder-[#8A9BB0] focus:outline-none focus:border-[#00C4AF] focus:ring-1 focus:ring-[#00C4AF]/20 transition-colors font-[family-name:var(--font-dm-sans)]"
+                    className="w-full px-4 py-3 bg-surface/80 border border-border rounded-lg text-white placeholder-muted focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-colors font-body backdrop-blur-sm"
                     placeholder="Acme Corp"
                   />
                 </div>
@@ -95,7 +119,7 @@ export default function ContactPage() {
                 {/* Email and Phone */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-semibold text-white mb-3 font-[family-name:var(--font-sora)]">
+                    <label className="block text-sm font-semibold text-white mb-3 font-heading">
                       Email
                     </label>
                     <input
@@ -104,12 +128,12 @@ export default function ContactPage() {
                       value={formData.email}
                       onChange={handleChange}
                       required
-                      className="w-full px-4 py-3 bg-[#1A1D24] border border-[#1F2733] rounded-lg text-white placeholder-[#8A9BB0] focus:outline-none focus:border-[#00C4AF] focus:ring-1 focus:ring-[#00C4AF]/20 transition-colors font-[family-name:var(--font-dm-sans)]"
+                      className="w-full px-4 py-3 bg-surface/80 border border-border rounded-lg text-white placeholder-muted focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-colors font-body backdrop-blur-sm"
                       placeholder="john@acme.com"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-white mb-3 font-[family-name:var(--font-sora)]">
+                    <label className="block text-sm font-semibold text-white mb-3 font-heading">
                       Phone
                     </label>
                     <input
@@ -117,7 +141,7 @@ export default function ContactPage() {
                       name="phone"
                       value={formData.phone}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 bg-[#1A1D24] border border-[#1F2733] rounded-lg text-white placeholder-[#8A9BB0] focus:outline-none focus:border-[#00C4AF] focus:ring-1 focus:ring-[#00C4AF]/20 transition-colors font-[family-name:var(--font-dm-sans)]"
+                      className="w-full px-4 py-3 bg-surface/80 border border-border rounded-lg text-white placeholder-muted focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-colors font-body backdrop-blur-sm"
                       placeholder="+971 50 000 0000"
                     />
                   </div>
@@ -125,14 +149,14 @@ export default function ContactPage() {
 
                 {/* Service */}
                 <div>
-                  <label className="block text-sm font-semibold text-white mb-3 font-[family-name:var(--font-sora)]">
+                  <label className="block text-sm font-semibold text-white mb-3 font-heading">
                     What can we help with?
                   </label>
                   <select
                     name="service"
                     value={formData.service}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 bg-[#1A1D24] border border-[#1F2733] rounded-lg text-white focus:outline-none focus:border-[#00C4AF] focus:ring-1 focus:ring-[#00C4AF]/20 transition-colors font-[family-name:var(--font-dm-sans)]"
+                    className="w-full px-4 py-3 bg-surface/80 border border-border rounded-lg text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-colors font-body backdrop-blur-sm"
                   >
                     <option value="">Select a service area</option>
                     {serviceOptions.map((option) => (
@@ -145,7 +169,7 @@ export default function ContactPage() {
 
                 {/* Message */}
                 <div>
-                  <label className="block text-sm font-semibold text-white mb-3 font-[family-name:var(--font-sora)]">
+                  <label className="block text-sm font-semibold text-white mb-3 font-heading">
                     Message
                   </label>
                   <textarea
@@ -153,7 +177,7 @@ export default function ContactPage() {
                     value={formData.message}
                     onChange={handleChange}
                     rows={6}
-                    className="w-full px-4 py-3 bg-[#1A1D24] border border-[#1F2733] rounded-lg text-white placeholder-[#8A9BB0] focus:outline-none focus:border-[#00C4AF] focus:ring-1 focus:ring-[#00C4AF]/20 transition-colors resize-none font-[family-name:var(--font-dm-sans)]"
+                    className="w-full px-4 py-3 bg-surface/80 border border-border rounded-lg text-white placeholder-muted focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-colors resize-none font-body backdrop-blur-sm"
                     placeholder="Tell us about your project and what you are looking to achieve..."
                   />
                 </div>
@@ -161,7 +185,7 @@ export default function ContactPage() {
                 {/* Submit Button */}
                 <button
                   type="submit"
-                  className="w-full px-8 py-4 bg-[#00C4AF] text-[#111318] font-semibold rounded-lg hover:bg-[#00C4AF]/90 transition-colors flex items-center justify-center gap-2 font-[family-name:var(--font-sora)]"
+                  className="w-full px-8 py-4 bg-primary text-[#111318] font-semibold rounded-lg hover:bg-primary/90 transition-colors btn-glow flex items-center justify-center gap-2 font-heading"
                 >
                   Start the Conversation
                   <ArrowRight className="w-5 h-5" />
@@ -170,23 +194,23 @@ export default function ContactPage() {
             </div>
 
             {/* Contact Info Sidebar */}
-            <div data-reveal className="lg:col-span-1">
+            <div ref={sidebarRef} className="lg:col-span-1" style={{ opacity: 0 }}>
               <div className="sticky top-20">
-                <h3 className="text-2xl font-semibold mb-8 text-white font-[family-name:var(--font-sora)]">
+                <h3 className="text-2xl font-semibold mb-8 text-white font-heading">
                   Get in Touch
                 </h3>
 
                 <div className="space-y-8">
                   {/* Email */}
                   <div className="flex items-start gap-4">
-                    <Mail className="w-6 h-6 text-[#00C4AF] flex-shrink-0 mt-1" />
+                    <Mail className="w-6 h-6 text-primary flex-shrink-0 mt-1" />
                     <div>
-                      <p className="text-sm text-[#8A9BB0] mb-2 font-[family-name:var(--font-dm-sans)]">
+                      <p className="text-sm text-muted mb-2 font-body">
                         Email
                       </p>
                       <a
                         href={`mailto:${siteConfig.email}`}
-                        className="text-white hover:text-[#00C4AF] transition-colors font-semibold font-[family-name:var(--font-sora)]"
+                        className="text-white hover:text-primary transition-colors font-semibold font-heading"
                       >
                         {siteConfig.email}
                       </a>
@@ -195,23 +219,23 @@ export default function ContactPage() {
 
                   {/* Location */}
                   <div className="flex items-start gap-4">
-                    <MapPin className="w-6 h-6 text-[#00C4AF] flex-shrink-0 mt-1" />
+                    <MapPin className="w-6 h-6 text-primary flex-shrink-0 mt-1" />
                     <div>
-                      <p className="text-sm text-[#8A9BB0] mb-2 font-[family-name:var(--font-dm-sans)]">
+                      <p className="text-sm text-muted mb-2 font-body">
                         Location
                       </p>
-                      <p className="text-white font-semibold font-[family-name:var(--font-sora)]">
+                      <p className="text-white font-semibold font-heading">
                         {siteConfig.location}
                       </p>
                     </div>
                   </div>
 
                   {/* Response Time */}
-                  <div className="mt-12 p-6 border border-[#1F2733] rounded-lg bg-[#1A1D24]">
-                    <p className="text-sm text-[#8A9BB0] mb-2 font-[family-name:var(--font-dm-sans)]">
+                  <div className="mt-12 p-6 bg-surface/60 backdrop-blur-sm border border-border/60 rounded-xl">
+                    <p className="text-sm text-muted mb-2 font-body">
                       Response Time
                     </p>
-                    <p className="text-white font-semibold font-[family-name:var(--font-sora)]">
+                    <p className="text-white font-semibold font-heading">
                       Within 24 hours
                     </p>
                   </div>
