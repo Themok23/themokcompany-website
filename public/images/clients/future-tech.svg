@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 80" fill="none">
+  <text x="22" y="36" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="300" fill="#8A9BB0" letter-spacing="6">FUTURE</text>
+  <text x="22" y="56" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="800" fill="#8A9BB0" letter-spacing="3">TECH</text>
+  <rect x="112" y="42" width="16" height="2" rx="1" fill="#00C4AF" opacity="0.6"/>
+</svg>

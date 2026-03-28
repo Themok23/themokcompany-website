@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 80" fill="none">
+  <text x="20" y="42" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" fill="#8A9BB0" letter-spacing="2">RAYA</text>
+  <text x="118" y="42" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="300" fill="#00C4AF" letter-spacing="1">CX</text>
+  <rect x="20" y="52" width="40" height="2" rx="1" fill="#00C4AF" opacity="0.6"/>
+</svg>

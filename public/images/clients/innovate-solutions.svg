@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 80" fill="none">
+  <text x="18" y="38" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" fill="#8A9BB0" letter-spacing="1">Innovate</text>
+  <text x="18" y="56" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="300" fill="#8A9BB0" letter-spacing="4">SOLUTIONS</text>
+  <circle cx="175" cy="40" r="6" stroke="#00C4AF" stroke-width="1.5" fill="none" opacity="0.5"/>
+  <circle cx="175" cy="40" r="2" fill="#00C4AF" opacity="0.7"/>
+</svg>
