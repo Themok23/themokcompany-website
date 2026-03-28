@@ -17,10 +17,13 @@ const navLinks = [
 ];
 
 export function Navbar() {
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+
+  // Hide navbar on dashboard routes
+  if (pathname?.startsWith("/dashboard")) return null;
   const [scrolled, setScrolled] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
-  const pathname = usePathname();
   const lastScrollYRef = useRef(0);
 
   useEffect(() => {
@@ -67,6 +70,17 @@ export function Navbar() {
     };
   }, [isOpen]);
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isOpen) {
+        setIsOpen(false);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen]);
+
   return (
     <>
       <nav
@@ -74,7 +88,7 @@ export function Navbar() {
           isVisible ? "translate-y-0" : "-translate-y-full"
         } ${
           scrolled
-            ? "bg-[#090B10]/80 backdrop-blur-xl border-b border-[#1F2733]"
+            ? "bg-[#060810]/80 backdrop-blur-xl border-b border-border"
             : "bg-transparent"
         }`}
       >
@@ -98,7 +112,7 @@ export function Navbar() {
                   href={link.href}
                   className={`text-sm tracking-wide transition-colors duration-300 cursor-pointer link-underline ${
                     pathname === link.href
-                      ? "text-[#00C4AF]"
+                      ? "text-primary"
                       : "text-white/60 hover:text-white"
                   }`}
                 >
@@ -130,7 +144,7 @@ export function Navbar() {
 
       {/* Mobile menu */}
       <div
-        className={`fixed inset-0 z-40 bg-[#090B10] transition-all duration-500 lg:hidden ${
+        className={`fixed inset-0 z-40 bg-[#060810] transition-all duration-500 lg:hidden ${
           isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}
       >
@@ -140,7 +154,7 @@ export function Navbar() {
               key={link.href}
               href={link.href}
               className={`text-3xl font-light tracking-wide transition-all duration-500 cursor-pointer ${
-                pathname === link.href ? "text-[#00C4AF]" : "text-white/50 hover:text-white"
+                pathname === link.href ? "text-primary" : "text-white/50 hover:text-white"
               }`}
               style={{
                 transitionDelay: isOpen ? `${i * 50}ms` : "0ms",
