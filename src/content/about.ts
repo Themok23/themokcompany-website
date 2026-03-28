@@ -3,76 +3,64 @@ import type { HeroContent, HomeSection, PhilosophyItem, ApproachStep } from "./t
 const aboutHero: HeroContent = {
   title: "About The Mok Company",
   subtitle:
-    "A decade of digital transformation expertise serving enterprise leaders",
+    "A multidimensional consultancy integrating management, marketing, innovation, and technology.",
 };
 
 const ourStory: HomeSection = {
   id: "our-story",
   title: "Our Story",
   description:
-    "Founded a decade ago, The Mok Company emerged from a simple belief: enterprise digital transformation requires equal parts strategy and technical excellence. We've spent ten years proving that thoughtful approach, deep expertise, and genuine partnership produce results that matter.",
+    "The Mok Company began as a technology-driven venture. Today, it is a multidimensional consultancy integrating management, marketing, innovation, and technology. We evolved because businesses don't need fragmented solutions. They need integrated growth engines.",
   items: [
-    "Started with a focus on digital transformation in retail",
-    "Expanded into finance and automotive sectors",
-    "Built a team of strategists, architects, and engineers",
-    "Evolved to offer integrated consulting and technology services",
-    "Now partnering with enterprises across multiple industries",
+    "Management",
+    "Marketing",
+    "Innovation",
+    "Technology",
   ],
 };
 
 const philosophyItems: readonly PhilosophyItem[] = [
   {
-    title: "Strategy First",
+    title: "Creativity Must Serve Strategy",
     description:
-      "Technology serves business objectives, not the reverse. We begin every engagement by understanding your strategic intent.",
+      "Beautiful ideas that don't move markets are just decoration. Every creative decision we make is anchored in strategic intent and business outcomes.",
   },
   {
-    title: "Excellence is Non-Negotiable",
+    title: "Strategy Must Lead to Execution",
     description:
-      "Whether strategy, design, or code, we deliver work that reflects our commitment to quality and attention to detail.",
+      "We don't deliver PowerPoints. We deliver results. Every strategy comes with an execution plan, timeline, and accountability built in from day one.",
   },
   {
-    title: "Partnership Over Vendor",
+    title: "Execution Must Drive Measurable Growth",
     description:
-      "We view our engagements as long-term partnerships where your success is our success.",
-  },
-  {
-    title: "Integrated Solutions",
-    description:
-      "Consulting, product development, and technology work together seamlessly, not in silos.",
+      "If it can't be measured, it can't be improved. We track outcomes against KPIs and optimize relentlessly until your growth targets are exceeded.",
   },
 ] as const;
 
 const approachSteps: readonly ApproachStep[] = [
   {
     step: 1,
-    title: "Understand Your Context",
+    title: "Discover",
     description:
-      "We invest time in understanding your business, market, organization, and strategic priorities.",
+      "Deep analysis. Market intelligence. Brand diagnosis. We invest heavily in understanding your business, competitive position, and strategic intent before making a single recommendation.",
   },
   {
     step: 2,
-    title: "Define Clear Objectives",
+    title: "Design",
     description:
-      "Together we establish measurable outcomes and success criteria for the engagement.",
+      "Strategic architecture. Creative frameworks. Innovation models. We design integrated solutions spanning strategy, product, and technology with clarity on direction and expected outcomes.",
   },
   {
     step: 3,
-    title: "Design Integrated Solutions",
+    title: "Deploy",
     description:
-      "Strategy, product design, and technology converge in a cohesive solution architecture.",
+      "Operational rollout. Marketing activation. Technology implementation. We execute with rigor, quality standards, and transparent communication. Your team works alongside ours.",
   },
   {
     step: 4,
-    title: "Execute with Rigor",
+    title: "Dominate",
     description:
-      "Our team delivers with attention to detail, quality standards, and timeline discipline.",
-  },
-  {
-    step: 5,
-    title: "Enable Your Team",
-    description:
-      "We transfer knowledge, build capabilities, and set you up for long-term success.",
+      "Scale, optimize, lead. We measure performance against your KPIs, identify growth opportunities, and continuously improve until you own the category.",
   },
 ] as const;
 
