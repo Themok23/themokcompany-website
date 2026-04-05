@@ -55,7 +55,7 @@ const STARFIELD_CONFIG = {
   // Passive hover attraction - small radius, but stars fully reach cursor
   cursorAttractionRadius: 80,
   cursorAttractionStrength: 0.95,
-  cursorAttractionLerp: 0.06,
+  cursorAttractionLerp: 0.035,
   cursorClarityRadius: 250,
   cursorGlowLerpSpeed: 0.14,
   scrollParallaxStrength: 0.5,
@@ -329,9 +329,9 @@ export function CanvasBackground() {
         }
 
         // Lerp speed scales with proximity - close stars arrive fast, edge stars drift in
-        const proximityLerp = t > 0 ? attractLerp + t * t * 0.08 : attractLerp;
+        const proximityLerp = t > 0 ? attractLerp + t * t * 0.05 : attractLerp;
         const effectiveLerp = star.convergeProgress > 0 
-          ? proximityLerp + star.convergeProgress * 0.06
+          ? proximityLerp + star.convergeProgress * 0.04
           : proximityLerp;
         star.attractX = lerp(star.attractX, targetAttractX, effectiveLerp);
         star.attractY = lerp(star.attractY, targetAttractY, effectiveLerp);
