@@ -62,13 +62,13 @@ const STARFIELD_CONFIG = {
   cursorGlowLerpSpeed: 0.14,
   scrollParallaxStrength: 0.5,
   mouseParallaxStrength: 0.02,
-  // Cursor convergence - stars pull toward cursor over ~2 seconds
-  cursorConvergeDuration: 2.0,     // seconds to fully converge
-  cursorConvergeRadius: 350,        // stars within this radius get pulled
-  cursorStillThreshold: 8,          // pixels - cursor must move less than this to be "still"
-  cursorStillDelay: 0.3,            // seconds cursor must be still before convergence starts
-  convergeFlashSpeed: 4,            // flash pulses per second at full convergence
-  convergeFlashSize: 25,            // radius of the big flash particle
+  // Cursor convergence - stars pull toward cursor gently over ~3.5 seconds
+  cursorConvergeDuration: 3.5,      // seconds to fully converge (slower, calmer)
+  cursorConvergeRadius: 400,        // wider catch radius for more stars
+  cursorStillThreshold: 6,          // tighter stillness detection
+  cursorStillDelay: 0.5,            // longer pause before convergence starts
+  convergeFlashSpeed: 1.8,          // slower, more elegant pulse
+  convergeFlashSize: 35,            // bigger flash particle
   // Center convergence - forms a bright cluster at screen center
   convergenceStrength: 0.18,
   convergenceLerp: 0.003,
@@ -322,17 +322,18 @@ export function CanvasBackground() {
           targetAttractY = dy * pullStrength;
         }
 
-        // Convergence pull: when converging, stars pull strongly toward cursor
+        // Convergence pull: gently guide stars toward cursor
         if (star.convergeProgress > 0) {
-          const cp = star.convergeProgress * star.convergeProgress; // ease-in
-          // Blend toward full pull (dx, dy = vector from star to cursor)
-          targetAttractX = targetAttractX * (1 - cp) + dx * 0.95 * cp;
-          targetAttractY = targetAttractY * (1 - cp) + dy * 0.95 * cp;
+          // Smooth ease-out curve: fast start, gentle finish
+          const cp = 1 - Math.pow(1 - star.convergeProgress, 3);
+          // Stars drift 85% of the way - never fully collapse, keeps it organic
+          targetAttractX = targetAttractX * (1 - cp) + dx * 0.85 * cp;
+          targetAttractY = targetAttractY * (1 - cp) + dy * 0.85 * cp;
         }
 
-        // Smoothly lerp the attraction offset
+        // Smoothly lerp the attraction offset - gentle even during convergence
         const effectiveLerp = star.convergeProgress > 0 
-          ? attractLerp + star.convergeProgress * 0.08  // faster lerp during convergence
+          ? attractLerp + star.convergeProgress * 0.04  // gentler lerp ramp
           : attractLerp;
         star.attractX = lerp(star.attractX, targetAttractX, effectiveLerp);
         star.attractY = lerp(star.attractY, targetAttractY, effectiveLerp);
@@ -347,17 +348,17 @@ export function CanvasBackground() {
         // Cull offscreen stars
         if (drawX < -30 || drawX > w + 30 || drawY < -30 || drawY > h + 30) continue;
 
-        // Convergence brightness boost
-        if (star.convergeProgress > 0.3) {
-          const brightBoost = (star.convergeProgress - 0.3) / 0.7;
-          currentOpacity = Math.min(1, currentOpacity + brightBoost * 0.5);
+        // Convergence brightness boost - gentle ramp
+        if (star.convergeProgress > 0.4) {
+          const brightBoost = (star.convergeProgress - 0.4) / 0.6;
+          currentOpacity = Math.min(1, currentOpacity + brightBoost * 0.35);
         }
 
         let currentSize = star.size;
-        // Convergence size boost - stars grow as they converge
-        if (star.convergeProgress > 0.5) {
-          const sizeBoost = (star.convergeProgress - 0.5) / 0.5;
-          currentSize = star.size * (1 + sizeBoost * 1.5);
+        // Convergence size boost - subtle growth
+        if (star.convergeProgress > 0.6) {
+          const sizeBoost = (star.convergeProgress - 0.6) / 0.4;
+          currentSize = star.size * (1 + sizeBoost * 0.8);
         }
         let blurFactor = 0;
 
@@ -607,8 +608,8 @@ export function CanvasBackground() {
           // Ramp up convergence progress
           star.convergeProgress = Math.min(1, star.convergeProgress + convergeSpeed * dt);
         } else {
-          // Release - fade out convergence faster
-          star.convergeProgress = Math.max(0, star.convergeProgress - convergeSpeed * 2 * dt);
+          // Release - smooth fade out
+          star.convergeProgress = Math.max(0, star.convergeProgress - convergeSpeed * 1.5 * dt);
         }
 
         if (star.convergeProgress > maxConvergence) {
