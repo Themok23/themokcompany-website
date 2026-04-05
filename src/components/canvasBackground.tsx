@@ -55,7 +55,7 @@ const STARFIELD_CONFIG = {
   // Passive hover attraction - small radius, but stars fully reach cursor
   cursorAttractionRadius: 80,
   cursorAttractionStrength: 0.95,
-  cursorAttractionLerp: 0.045,
+  cursorAttractionLerp: 0.06,
   cursorClarityRadius: 250,
   cursorGlowLerpSpeed: 0.14,
   scrollParallaxStrength: 0.5,
@@ -312,11 +312,12 @@ export function CanvasBackground() {
         let targetAttractY = 0;
 
         if (distance < attractR && distance > 0) {
-          // Smooth ease: stars within radius fully converge to cursor point
+          // Stars within radius converge to cursor center point
+          // Quadratic ease: closer stars snap in, edge stars drift gently
           const t = 1 - distance / attractR;
-          const pullStrength = t * t * t * attractStr; // cubic ease for smooth approach
-          targetAttractX = dx * pullStrength;
-          targetAttractY = dy * pullStrength;
+          // Pull = full distance * eased factor - stars actually reach the cursor
+          targetAttractX = dx * t * t * attractStr;
+          targetAttractY = dy * t * t * attractStr;
         }
 
         // Convergence pull: guide stars toward cursor on click
