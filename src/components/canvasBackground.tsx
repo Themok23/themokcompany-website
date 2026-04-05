@@ -24,6 +24,8 @@ interface Star {
   driftSpeedX: number;
   driftSpeedY: number;
   driftRadius: number;
+  // Cursor convergence state
+  convergeProgress: number; // 0 = free, 1 = fully converged
 }
 
 interface NebulaParticle {
@@ -60,6 +62,13 @@ const STARFIELD_CONFIG = {
   cursorGlowLerpSpeed: 0.14,
   scrollParallaxStrength: 0.5,
   mouseParallaxStrength: 0.02,
+  // Cursor convergence - stars pull toward cursor over ~2 seconds
+  cursorConvergeDuration: 2.0,     // seconds to fully converge
+  cursorConvergeRadius: 350,        // stars within this radius get pulled
+  cursorStillThreshold: 8,          // pixels - cursor must move less than this to be "still"
+  cursorStillDelay: 0.3,            // seconds cursor must be still before convergence starts
+  convergeFlashSpeed: 4,            // flash pulses per second at full convergence
+  convergeFlashSize: 25,            // radius of the big flash particle
   // Center convergence - forms a bright cluster at screen center
   convergenceStrength: 0.18,
   convergenceLerp: 0.003,
@@ -103,6 +112,10 @@ export function CanvasBackground() {
   const animationIdRef = useRef<number>(0);
   const contextRef = useRef<CanvasRenderingContext2D | null>(null);
   const dprRef = useRef<number>(1);
+  const lastMousePosRef = useRef<MousePos>({ x: -1000, y: -1000 });
+  const cursorStillTimeRef = useRef<number>(0);
+  const lastFrameTimeRef = useRef<number>(0);
+  const isConvergingRef = useRef<boolean>(false);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -159,6 +172,7 @@ export function CanvasBackground() {
           driftSpeedX: 0.003 + Math.random() * 0.006,
           driftSpeedY: 0.002 + Math.random() * 0.005,
           driftRadius: 1.5 + Math.random() * 3.5,
+          convergeProgress: 0,
         });
       }
 
@@ -308,9 +322,20 @@ export function CanvasBackground() {
           targetAttractY = dy * pullStrength;
         }
 
-        // Smoothly lerp the attraction offset (~2 seconds to reach target)
-        star.attractX = lerp(star.attractX, targetAttractX, attractLerp);
-        star.attractY = lerp(star.attractY, targetAttractY, attractLerp);
+        // Convergence pull: when converging, stars pull strongly toward cursor
+        if (star.convergeProgress > 0) {
+          const cp = star.convergeProgress * star.convergeProgress; // ease-in
+          // Blend toward full pull (dx, dy = vector from star to cursor)
+          targetAttractX = targetAttractX * (1 - cp) + dx * 0.95 * cp;
+          targetAttractY = targetAttractY * (1 - cp) + dy * 0.95 * cp;
+        }
+
+        // Smoothly lerp the attraction offset
+        const effectiveLerp = star.convergeProgress > 0 
+          ? attractLerp + star.convergeProgress * 0.08  // faster lerp during convergence
+          : attractLerp;
+        star.attractX = lerp(star.attractX, targetAttractX, effectiveLerp);
+        star.attractY = lerp(star.attractY, targetAttractY, effectiveLerp);
 
         // Snap to zero if very small (avoid lingering drift)
         if (Math.abs(star.attractX) < 0.01 && Math.abs(targetAttractX) === 0) star.attractX = 0;
@@ -322,7 +347,18 @@ export function CanvasBackground() {
         // Cull offscreen stars
         if (drawX < -30 || drawX > w + 30 || drawY < -30 || drawY > h + 30) continue;
 
+        // Convergence brightness boost
+        if (star.convergeProgress > 0.3) {
+          const brightBoost = (star.convergeProgress - 0.3) / 0.7;
+          currentOpacity = Math.min(1, currentOpacity + brightBoost * 0.5);
+        }
+
         let currentSize = star.size;
+        // Convergence size boost - stars grow as they converge
+        if (star.convergeProgress > 0.5) {
+          const sizeBoost = (star.convergeProgress - 0.5) / 0.5;
+          currentSize = star.size * (1 + sizeBoost * 1.5);
+        }
         let blurFactor = 0;
 
         // Cursor clarity effect - sharp near cursor, blurry far away
@@ -462,21 +498,129 @@ export function CanvasBackground() {
       c.fill();
     };
 
+    const drawConvergeFlash = (cx: number, cy: number, convergence: number) => {
+      const c = contextRef.current;
+      if (!c || convergence < 0.1) return;
+
+      const time = Date.now() * 0.001;
+      const flashPulse = 0.5 + Math.sin(time * STARFIELD_CONFIG.convergeFlashSpeed * Math.PI * 2) * 0.5;
+      const intensity = convergence * convergence; // ease-in curve
+      const baseSize = STARFIELD_CONFIG.convergeFlashSize * intensity;
+      const size = baseSize * (0.8 + flashPulse * 0.4);
+
+      // Outer glow ring
+      const outerR = size * 3;
+      const outerGrad = c.createRadialGradient(cx, cy, size * 0.3, cx, cy, outerR);
+      outerGrad.addColorStop(0, 'rgba(0, 196, 175, ' + (0.3 * intensity * flashPulse) + ')');
+      outerGrad.addColorStop(0.3, 'rgba(0, 168, 255, ' + (0.15 * intensity) + ')');
+      outerGrad.addColorStop(0.6, 'rgba(0, 196, 175, ' + (0.05 * intensity) + ')');
+      outerGrad.addColorStop(1, 'rgba(0, 196, 175, 0)');
+      c.fillStyle = outerGrad;
+      c.beginPath();
+      c.arc(cx, cy, outerR, 0, Math.PI * 2);
+      c.fill();
+
+      // Main flash body
+      const mainGrad = c.createRadialGradient(cx, cy, 0, cx, cy, size);
+      mainGrad.addColorStop(0, 'rgba(255, 255, 255, ' + (0.9 * intensity * (0.7 + flashPulse * 0.3)) + ')');
+      mainGrad.addColorStop(0.2, 'rgba(0, 196, 175, ' + (0.6 * intensity) + ')');
+      mainGrad.addColorStop(0.5, 'rgba(0, 168, 255, ' + (0.3 * intensity) + ')');
+      mainGrad.addColorStop(1, 'rgba(0, 196, 175, 0)');
+      c.fillStyle = mainGrad;
+      c.beginPath();
+      c.arc(cx, cy, size, 0, Math.PI * 2);
+      c.fill();
+
+      // Bright white core
+      const coreSize = size * 0.25 * (0.6 + flashPulse * 0.4);
+      c.fillStyle = 'rgba(255, 255, 255, ' + (0.95 * intensity) + ')';
+      c.beginPath();
+      c.arc(cx, cy, coreSize, 0, Math.PI * 2);
+      c.fill();
+
+      // Cross-flare rays at high convergence
+      if (intensity > 0.5) {
+        const rayLength = size * 2.5 * flashPulse;
+        const rayWidth = 1.5 * intensity;
+        c.strokeStyle = 'rgba(255, 255, 255, ' + (0.3 * intensity * flashPulse) + ')';
+        c.lineWidth = rayWidth;
+        // Horizontal ray
+        c.beginPath();
+        c.moveTo(cx - rayLength, cy);
+        c.lineTo(cx + rayLength, cy);
+        c.stroke();
+        // Vertical ray
+        c.beginPath();
+        c.moveTo(cx, cy - rayLength);
+        c.lineTo(cx, cy + rayLength);
+        c.stroke();
+      }
+    };
+
     const animate = () => {
       const c = contextRef.current;
       if (!c) return;
       const w = window.innerWidth;
       const h = window.innerHeight;
+      const now = performance.now() / 1000;
+      const dt = lastFrameTimeRef.current > 0 ? Math.min(now - lastFrameTimeRef.current, 0.05) : 0.016;
+      lastFrameTimeRef.current = now;
 
       c.clearRect(0, 0, w, h);
 
       mouseGlowRef.current.x = lerp(mouseGlowRef.current.x, mouseRef.current.x, STARFIELD_CONFIG.cursorGlowLerpSpeed);
       mouseGlowRef.current.y = lerp(mouseGlowRef.current.y, mouseRef.current.y, STARFIELD_CONFIG.cursorGlowLerpSpeed);
 
+      // Detect if cursor is still
+      const mx = mouseRef.current.x;
+      const my = mouseRef.current.y;
+      const lmx = lastMousePosRef.current.x;
+      const lmy = lastMousePosRef.current.y;
+      const mouseDelta = Math.sqrt((mx - lmx) * (mx - lmx) + (my - lmy) * (my - lmy));
+
+      if (mouseDelta < STARFIELD_CONFIG.cursorStillThreshold && mx > 0 && my > 0) {
+        cursorStillTimeRef.current += dt;
+      } else {
+        cursorStillTimeRef.current = 0;
+      }
+      lastMousePosRef.current = { x: mx, y: my };
+
+      const shouldConverge = cursorStillTimeRef.current > STARFIELD_CONFIG.cursorStillDelay;
+      isConvergingRef.current = shouldConverge;
+
+      // Update star convergence progress
+      const convergeSpeed = 1 / STARFIELD_CONFIG.cursorConvergeDuration; // per second
+      const cursorX = mouseGlowRef.current.x;
+      const cursorY = mouseGlowRef.current.y;
+      let maxConvergence = 0;
+
+      for (let i = 0; i < starsRef.current.length; i++) {
+        const star = starsRef.current[i];
+        const offset = getParallaxOffset(star.depth);
+        const sx = star.baseX + offset.x + star.convergeX;
+        const sy = star.baseY + offset.y + star.convergeY;
+        const dxC = cursorX - sx;
+        const dyC = cursorY - sy;
+        const distC = Math.sqrt(dxC * dxC + dyC * dyC);
+
+        if (shouldConverge && distC < STARFIELD_CONFIG.cursorConvergeRadius) {
+          // Ramp up convergence progress
+          star.convergeProgress = Math.min(1, star.convergeProgress + convergeSpeed * dt);
+        } else {
+          // Release - fade out convergence faster
+          star.convergeProgress = Math.max(0, star.convergeProgress - convergeSpeed * 2 * dt);
+        }
+
+        if (star.convergeProgress > maxConvergence) {
+          maxConvergence = star.convergeProgress;
+        }
+      }
+
       drawNebulas();
-      drawStars(mouseGlowRef.current.x, mouseGlowRef.current.y);
+      drawStars(cursorX, cursorY);
       drawCenterStar(w, h);
-      drawCursorGlow(mouseGlowRef.current.x, mouseGlowRef.current.y);
+      drawConvergeFlash(cursorX, cursorY, maxConvergence);
+      drawCursorGlow(cursorX, cursorY);
 
       animationIdRef.current = requestAnimationFrame(animate);
     };
