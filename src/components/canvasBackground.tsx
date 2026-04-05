@@ -52,23 +52,22 @@ const STARFIELD_CONFIG = {
   minSize: 0.3,
   maxSize: 3.2,
   cursorGlowRadius: 300,
-  // Smaller radius so only nearby stars are affected
-  cursorAttractionRadius: 220,
-  // How close stars can get to cursor (0 = all the way, 1 = no movement)
-  cursorAttractionStrength: 0.85,
-  // Lerp speed per frame (~0.025 at 60fps = ~2 second ease)
-  cursorAttractionLerp: 0.025,
+  // Passive hover attraction - very few stars, very gentle
+  cursorAttractionRadius: 120,
+  cursorAttractionStrength: 0.3,
+  cursorAttractionLerp: 0.015,
   cursorClarityRadius: 250,
   cursorGlowLerpSpeed: 0.14,
   scrollParallaxStrength: 0.5,
   mouseParallaxStrength: 0.02,
-  // Cursor convergence - stars pull toward cursor gently over ~3.5 seconds
-  cursorConvergeDuration: 3.5,      // seconds to fully converge (slower, calmer)
-  cursorConvergeRadius: 400,        // wider catch radius for more stars
-  cursorStillThreshold: 6,          // tighter stillness detection
-  cursorStillDelay: 0.5,            // longer pause before convergence starts
-  convergeFlashSpeed: 1.8,          // slower, more elegant pulse
-  convergeFlashSize: 35,            // bigger flash particle
+  // Cursor convergence - triggered by click-and-hold
+  cursorConvergeDuration: 3.5,      // seconds to fully converge
+  cursorConvergeRadius: 200,        // smaller, tighter region
+  convergeFlashSpeed: 1.8,          // slower, elegant pulse
+  convergeFlashSize: 35,            // flash particle size
+  // Passive hover: just a few nearby stars drift slightly closer
+  passiveAttractionRadius: 120,     // very small hover zone
+  passiveAttractionStrength: 0.3,   // very gentle
   // Center convergence - forms a bright cluster at screen center
   convergenceStrength: 0.18,
   convergenceLerp: 0.003,
@@ -112,10 +111,8 @@ export function CanvasBackground() {
   const animationIdRef = useRef<number>(0);
   const contextRef = useRef<CanvasRenderingContext2D | null>(null);
   const dprRef = useRef<number>(1);
-  const lastMousePosRef = useRef<MousePos>({ x: -1000, y: -1000 });
-  const cursorStillTimeRef = useRef<number>(0);
   const lastFrameTimeRef = useRef<number>(0);
-  const isConvergingRef = useRef<boolean>(false);
+  const mousePressedRef = useRef<boolean>(false);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -572,22 +569,8 @@ export function CanvasBackground() {
       mouseGlowRef.current.x = lerp(mouseGlowRef.current.x, mouseRef.current.x, STARFIELD_CONFIG.cursorGlowLerpSpeed);
       mouseGlowRef.current.y = lerp(mouseGlowRef.current.y, mouseRef.current.y, STARFIELD_CONFIG.cursorGlowLerpSpeed);
 
-      // Detect if cursor is still
-      const mx = mouseRef.current.x;
-      const my = mouseRef.current.y;
-      const lmx = lastMousePosRef.current.x;
-      const lmy = lastMousePosRef.current.y;
-      const mouseDelta = Math.sqrt((mx - lmx) * (mx - lmx) + (my - lmy) * (my - lmy));
-
-      if (mouseDelta < STARFIELD_CONFIG.cursorStillThreshold && mx > 0 && my > 0) {
-        cursorStillTimeRef.current += dt;
-      } else {
-        cursorStillTimeRef.current = 0;
-      }
-      lastMousePosRef.current = { x: mx, y: my };
-
-      const shouldConverge = cursorStillTimeRef.current > STARFIELD_CONFIG.cursorStillDelay;
-      isConvergingRef.current = shouldConverge;
+      // Convergence only on click-and-hold
+      const shouldConverge = mousePressedRef.current && mouseRef.current.x > 0;
 
       // Update star convergence progress
       const convergeSpeed = 1 / STARFIELD_CONFIG.cursorConvergeDuration; // per second
@@ -631,6 +614,14 @@ export function CanvasBackground() {
       mouseRef.current.y = e.clientY;
     };
 
+    const handleMouseDown = () => {
+      mousePressedRef.current = true;
+    };
+
+    const handleMouseUp = () => {
+      mousePressedRef.current = false;
+    };
+
     const handleScroll = () => {
       scrollRef.current = window.scrollY;
     };
@@ -661,6 +652,8 @@ export function CanvasBackground() {
 
     window.addEventListener('resize', handleResize);
     window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    window.addEventListener('mousedown', handleMouseDown);
+    window.addEventListener('mouseup', handleMouseUp);
     window.addEventListener('scroll', handleScroll, { passive: true });
 
     animate();
@@ -669,6 +662,8 @@ export function CanvasBackground() {
       if (animationIdRef.current) cancelAnimationFrame(animationIdRef.current);
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mousedown', handleMouseDown);
+      window.removeEventListener('mouseup', handleMouseUp);
       window.removeEventListener('scroll', handleScroll);
     };
   }, []);
