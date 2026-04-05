@@ -311,28 +311,28 @@ export function CanvasBackground() {
         let targetAttractX = 0;
         let targetAttractY = 0;
 
-        if (distance < attractR && distance > 0) {
-          // Stars within radius converge to cursor center point
-          // Quadratic ease: closer stars snap in, edge stars drift gently
-          const t = 1 - distance / attractR;
-          // Pull = full distance * eased factor - stars actually reach the cursor
-          targetAttractX = dx * t * t * attractStr;
-          targetAttractY = dy * t * t * attractStr;
+        // Proximity factor: 1 at cursor center, 0 at edge of radius
+        const t = distance < attractR && distance > 0 ? 1 - distance / attractR : 0;
+
+        if (t > 0) {
+          // ALL stars within radius target the actual cursor center
+          targetAttractX = dx * attractStr;
+          targetAttractY = dy * attractStr;
         }
 
         // Convergence pull: guide stars toward cursor on click
         if (star.convergeProgress > 0) {
-          // Smooth ease-out curve: fast start, gentle finish
           const cp = 1 - Math.pow(1 - star.convergeProgress, 3);
-          // Stars drift 92% of the way on click - tight cluster but still organic
-          targetAttractX = targetAttractX * (1 - cp) + dx * 0.92 * cp;
-          targetAttractY = targetAttractY * (1 - cp) + dy * 0.92 * cp;
+          // On click, stars aim for 95% of the way to cursor
+          targetAttractX = targetAttractX * (1 - cp) + dx * 0.95 * cp;
+          targetAttractY = targetAttractY * (1 - cp) + dy * 0.95 * cp;
         }
 
-        // Smoothly lerp the attraction offset - gentle even during convergence
+        // Lerp speed scales with proximity - close stars arrive fast, edge stars drift in
+        const proximityLerp = t > 0 ? attractLerp + t * t * 0.08 : attractLerp;
         const effectiveLerp = star.convergeProgress > 0 
-          ? attractLerp + star.convergeProgress * 0.06  // ramps up during click convergence
-          : attractLerp;
+          ? proximityLerp + star.convergeProgress * 0.06
+          : proximityLerp;
         star.attractX = lerp(star.attractX, targetAttractX, effectiveLerp);
         star.attractY = lerp(star.attractY, targetAttractY, effectiveLerp);
 
