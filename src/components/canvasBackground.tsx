@@ -52,22 +52,22 @@ const STARFIELD_CONFIG = {
   minSize: 0.3,
   maxSize: 3.2,
   cursorGlowRadius: 300,
-  // Passive hover attraction - very few stars, very gentle
-  cursorAttractionRadius: 120,
-  cursorAttractionStrength: 0.3,
-  cursorAttractionLerp: 0.015,
+  // Passive hover attraction - small radius, but stars fully reach cursor
+  cursorAttractionRadius: 80,
+  cursorAttractionStrength: 0.95,
+  cursorAttractionLerp: 0.045,
   cursorClarityRadius: 250,
   cursorGlowLerpSpeed: 0.14,
   scrollParallaxStrength: 0.5,
   mouseParallaxStrength: 0.02,
   // Cursor convergence - triggered by click-and-hold
-  cursorConvergeDuration: 3.5,      // seconds to fully converge
-  cursorConvergeRadius: 200,        // smaller, tighter region
+  cursorConvergeDuration: 2.5,      // seconds to fully converge (2-3s max)
+  cursorConvergeRadius: 280,        // wider region on click
   convergeFlashSpeed: 1.8,          // slower, elegant pulse
   convergeFlashSize: 35,            // flash particle size
-  // Passive hover: just a few nearby stars drift slightly closer
-  passiveAttractionRadius: 120,     // very small hover zone
-  passiveAttractionStrength: 0.3,   // very gentle
+  // Passive hover: few stars fully converge to cursor point
+  passiveAttractionRadius: 80,      // tiny hover zone - only nearest stars
+  passiveAttractionStrength: 0.95,  // stars fully reach cursor
   // Center convergence - forms a bright cluster at screen center
   convergenceStrength: 0.18,
   convergenceLerp: 0.003,
@@ -312,25 +312,25 @@ export function CanvasBackground() {
         let targetAttractY = 0;
 
         if (distance < attractR && distance > 0) {
-          // Ease-in curve: stronger pull as stars get closer
+          // Smooth ease: stars within radius fully converge to cursor point
           const t = 1 - distance / attractR;
-          const pullStrength = t * t * attractStr;
+          const pullStrength = t * t * t * attractStr; // cubic ease for smooth approach
           targetAttractX = dx * pullStrength;
           targetAttractY = dy * pullStrength;
         }
 
-        // Convergence pull: gently guide stars toward cursor
+        // Convergence pull: guide stars toward cursor on click
         if (star.convergeProgress > 0) {
           // Smooth ease-out curve: fast start, gentle finish
           const cp = 1 - Math.pow(1 - star.convergeProgress, 3);
-          // Stars drift 85% of the way - never fully collapse, keeps it organic
-          targetAttractX = targetAttractX * (1 - cp) + dx * 0.85 * cp;
-          targetAttractY = targetAttractY * (1 - cp) + dy * 0.85 * cp;
+          // Stars drift 92% of the way on click - tight cluster but still organic
+          targetAttractX = targetAttractX * (1 - cp) + dx * 0.92 * cp;
+          targetAttractY = targetAttractY * (1 - cp) + dy * 0.92 * cp;
         }
 
         // Smoothly lerp the attraction offset - gentle even during convergence
         const effectiveLerp = star.convergeProgress > 0 
-          ? attractLerp + star.convergeProgress * 0.04  // gentler lerp ramp
+          ? attractLerp + star.convergeProgress * 0.06  // ramps up during click convergence
           : attractLerp;
         star.attractX = lerp(star.attractX, targetAttractX, effectiveLerp);
         star.attractY = lerp(star.attractY, targetAttractY, effectiveLerp);
