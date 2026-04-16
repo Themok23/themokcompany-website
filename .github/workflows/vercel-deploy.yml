@@ -1,0 +1,18 @@
+name: Deploy to Vercel
+
+on:
+  push:
+    branches:
+      - staging
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Vercel staging deploy
+        if: github.ref == 'refs/heads/staging'
+        run: curl -X POST "${{ secrets.VERCEL_STAGING_DEPLOY_HOOK }}" 
+      - name: Trigger Vercel main deploy
+        if: github.ref == 'refs/heads/main'
+        run: curl -X POST "${{ secrets.VERCEL_MAIN_DEPLOY_HOOK }}" 
