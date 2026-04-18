@@ -380,3 +380,265 @@ body {
     transform: translateX(-33.333%);
   }
 }
+
+/* ============================================
+   LOCOMOTIVE-STYLE SCROLL SPEED ELEMENTS
+   Use data-scroll-speed="0.5" on any element
+   ============================================ */
+[data-scroll-speed] {
+  will-change: transform;
+}
+
+/* ============================================
+   REDUCED MOTION: disable all decorative
+   animations for accessibility
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .btn-glow,
+  .btn-glow-outline {
+    animation: none;
+  }
+
+  .grain-overlay::after {
+    display: none;
+  }
+
+  .parallax-image,
+  .parallax-heading,
+  .parallax-watermark,
+  .parallax-accent,
+  .parallax-icon,
+  [data-scroll-speed] {
+    transform: none !important;
+    will-change: auto;
+  }
+}
+
+/* ============================================
+   SCREENSHOT GALLERY STYLES
+   ============================================ */
+.screenshot-hover-glow {
+  transition: box-shadow 0.5s ease;
+}
+
+.screenshot-hover-glow:hover {
+  box-shadow:
+    0 0 20px rgba(0, 196, 175, 0.08),
+    0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* ============================================
+   PERFORMANCE: contain paint for heavy sections
+   ============================================ */
+[data-section="case-studies"],
+.cs-section {
+  contain: layout style;
+}
+
+/* ============================================
+   FLUID TYPOGRAPHY (editorial scale)
+   ============================================ */
+.fluid-display {
+  font-size: clamp(2.75rem, 8.5vw, 9rem);
+  line-height: 0.93;
+  letter-spacing: -0.035em;
+}
+
+.fluid-hero {
+  font-size: clamp(3rem, 10.5vw, 11rem);
+  line-height: 0.88;
+  letter-spacing: -0.04em;
+}
+
+.fluid-title {
+  font-size: clamp(1.625rem, 3.6vw, 3rem);
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+}
+
+.fluid-next {
+  font-size: clamp(2.25rem, 6.5vw, 6rem);
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+}
+
+/* ============================================
+   PROJECT ROW — text outline on hover
+   ============================================ */
+.project-row .project-title {
+  transition: color 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+              -webkit-text-stroke-color 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+
+.project-row:hover .project-title {
+  -webkit-text-stroke: 1.25px rgba(255, 255, 255, 0.85);
+  color: transparent;
+  transform: translateX(14px);
+}
+
+.project-row .row-underline {
+  transform-origin: left center;
+  transform: scaleX(0);
+  transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.project-row:hover .row-underline {
+  transform: scaleX(1);
+}
+
+.project-row .row-arrow {
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+              background-color 0.4s ease,
+              color 0.4s ease,
+              border-color 0.4s ease;
+}
+
+.project-row:hover .row-arrow {
+  background: var(--color-primary);
+  color: #060810;
+  border-color: var(--color-primary);
+  transform: rotate(-45deg);
+}
+
+/* ============================================
+   CURSOR PEEK — floating image follower
+   ============================================ */
+.peek-image {
+  pointer-events: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 80;
+  width: min(26vw, 340px);
+  height: min(34vw, 440px);
+  border-radius: 6px;
+  overflow: hidden;
+  opacity: 0;
+  will-change: transform, opacity;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55),
+              0 0 0 1px rgba(255, 255, 255, 0.04);
+  transform: translate3d(0, 0, 0);
+}
+
+@media (max-width: 768px) {
+  .peek-image {
+    display: none;
+  }
+}
+
+/* ============================================
+   CLIENTS MARQUEE (duplicated track)
+   ============================================ */
+@keyframes clientsMarquee {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(-50%, 0, 0); }
+}
+
+.clients-marquee-track {
+  display: flex;
+  width: max-content;
+  animation: clientsMarquee 45s linear infinite;
+  will-change: transform;
+}
+
+.clients-marquee:hover .clients-marquee-track {
+  animation-play-state: paused;
+}
+
+/* ============================================
+   CATEGORY PILL — subtle active morph
+   ============================================ */
+.pill-filter {
+  transition: color 0.35s ease, background-color 0.35s ease,
+              border-color 0.35s ease, transform 0.35s ease;
+}
+
+.pill-filter:hover:not(.is-active) {
+  transform: translateY(-1px);
+}
+
+/* ============================================
+   SECTION-FADE legacy support
+   ============================================ */
+.section-fade > *,
+.section-fade {
+  will-change: auto;
+}
+
+/* ============================================
+   HORIZONTAL SCREENSHOTS TRACK
+   ============================================ */
+.h-scroll-track {
+  display: flex;
+  gap: 1.5rem;
+  padding-left: clamp(1.5rem, 5vw, 6rem);
+  padding-right: clamp(1.5rem, 5vw, 6rem);
+  will-change: transform;
+}
+
+.h-scroll-card {
+  flex: 0 0 auto;
+  width: min(78vw, 700px);
+  height: min(62vh, 520px);
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: #0D0F14;
+  position: relative;
+  will-change: transform;
+}
+
+@media (max-width: 767px) {
+  .h-scroll-track {
+    flex-direction: column;
+    padding: 0 1.5rem;
+  }
+  .h-scroll-card {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16/10;
+  }
+}
+
+/* ============================================
+   MASKED CLIP REVEAL
+   ============================================ */
+.clip-reveal {
+  clip-path: inset(100% 0 0 0);
+  will-change: clip-path;
+}
+
+/* ============================================
+   STICKY NAV RAIL
+   ============================================ */
+.nav-rail-item {
+  transition: opacity 0.5s ease;
+}
+
+.nav-rail-line {
+  transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+              background-color 0.5s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .clients-marquee-track {
+    animation: none;
+  }
+  .peek-image {
+    display: none !important;
+  }
+  .clip-reveal {
+    clip-path: none;
+  }
+}
