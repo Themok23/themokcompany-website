@@ -196,7 +196,7 @@ export default function WhatWeDoPage() {
             title="Integrated from the ground up"
             description="Most consultancies specialize. We integrate. Your strategy informs your innovation. Your innovation drives your technology. Your technology enables your growth."
             align="center"
-            animateMode="wave"
+            animateMode="gradient"
           />
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-4">

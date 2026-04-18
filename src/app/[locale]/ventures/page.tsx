@@ -100,7 +100,7 @@ export default function VenturesPage() {
             label="Our Products"
             title="Enterprise solutions built for scale"
             description="Premium SaaS platforms designed to solve real business challenges."
-            animateMode="scramble"
+            animateMode="gradient"
           />
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -203,7 +203,7 @@ export default function VenturesPage() {
             title="Where breakthrough ideas live"
             description={innovationLab.description}
             align="center"
-            animateMode="wave"
+            animateMode="gradient"
           />
 
           {innovationLab.items && innovationLab.items.length > 0 && (

@@ -500,13 +500,13 @@ export default function Home() {
             {/* Word-by-word scroll reveal */}
             <TextAnimate
               text={whoWeAre.title}
-              mode="words"
+              mode="gradient"
               tag="h2"
               className="text-4xl sm:text-5xl font-bold tracking-tight mb-8 font-heading"
               scrollTrigger
               triggerStart="top 70%"
-              duration={0.7}
-              stagger={0.04}
+              duration={1.2}
+              stagger={0.07}
             />
 
             <p className="who-desc text-lg text-muted mb-12 max-w-3xl leading-relaxed">
@@ -555,7 +555,8 @@ export default function Home() {
           className="text-4xl sm:text-5xl font-bold tracking-tight mb-4 text-center font-heading"
           scrollTrigger
           triggerStart="top 75%"
-          stagger={0.05}
+          duration={1.2}
+          stagger={0.07}
         />
 
         <p className="arms-desc text-lg text-muted text-center mb-16 max-w-2xl mx-auto">
@@ -614,7 +615,8 @@ export default function Home() {
             className="text-4xl sm:text-5xl font-bold tracking-tight mb-4 font-heading"
             scrollTrigger
             triggerStart="top 75%"
-            stagger={0.05}
+            duration={1.2}
+            stagger={0.07}
           />
           <p className="process-desc text-lg text-muted max-w-2xl mx-auto">
             From insight to execution, every step is intentional.
@@ -667,12 +669,13 @@ export default function Home() {
         {/* Wave animation */}
         <TextAnimate
           text={whyMok.title}
-          mode="wave"
+          mode="gradient"
           tag="h2"
           className="text-4xl sm:text-5xl font-bold tracking-tight mb-4 text-center font-heading"
           scrollTrigger
           triggerStart="top 70%"
-          stagger={0.04}
+          duration={1.2}
+          stagger={0.07}
         />
 
         <p className="why-desc text-lg text-muted text-center mb-16 max-w-3xl mx-auto">
@@ -729,12 +732,13 @@ export default function Home() {
         {/* Character reveal */}
         <TextAnimate
           text={audience.title}
-          mode="chars"
+          mode="gradient"
           tag="h2"
           className="text-4xl sm:text-5xl font-bold tracking-tight mb-16 text-center font-heading"
           scrollTrigger
           triggerStart="top 70%"
-          stagger={0.05}
+          duration={1.2}
+          stagger={0.07}
         />
 
         <p className="work-desc text-lg text-muted text-center mb-16 max-w-3xl mx-auto">
@@ -769,12 +773,13 @@ export default function Home() {
         {/* Words reveal for CTA */}
         <TextAnimate
           text={cta.title ?? "Ready to build what's next?"}
-          mode="words"
+          mode="gradient"
           tag="h2"
           className="text-4xl sm:text-5xl font-bold tracking-tight mb-6 font-heading"
           scrollTrigger
           triggerStart="top 70%"
-          stagger={0.05}
+          duration={1.2}
+          stagger={0.07}
         />
 
         <p className="text-lg text-muted mb-12 max-w-2xl mx-auto">

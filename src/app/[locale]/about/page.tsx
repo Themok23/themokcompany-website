@@ -150,7 +150,7 @@ export default function AboutPage() {
       {/* Our Story Section */}
       <section className="relative py-32 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
-          <SectionHeading label="Our Story" title={story.title} animateMode="words" />
+          <SectionHeading label="Our Story" title={story.title} animateMode="gradient" />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div>
@@ -199,7 +199,7 @@ export default function AboutPage() {
           <SectionHeading
             label="Our Philosophy"
             title="Principles that guide everything we do"
-            animateMode="scramble"
+            animateMode="gradient"
           />
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
