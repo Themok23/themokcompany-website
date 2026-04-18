@@ -26,6 +26,7 @@ import {
   getHomeAudience,
   getHomeCTA,
 } from '@/content/home';
+import { useLocale } from '@/i18n/useLocale';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -384,12 +385,13 @@ export default function Home() {
     };
   }, []);
 
-  const hero = getHomeHero();
-  const whoWeAre = getHomeWhoWeAre();
-  const arms = getHomeArms();
-  const whyMok = getHomeWhyMok();
-  const audience = getHomeAudience();
-  const cta = getHomeCTA();
+  const locale = useLocale();
+  const hero = getHomeHero(locale);
+  const whoWeAre = getHomeWhoWeAre(locale);
+  const arms = getHomeArms(locale);
+  const whyMok = getHomeWhyMok(locale);
+  const audience = getHomeAudience(locale);
+  const cta = getHomeCTA(locale);
 
   const whyMokDescriptions = [
     "We design, build, and ship. Strategy comes with execution embedded.",

@@ -13,16 +13,18 @@ import {
   getSaaSProducts,
   getInnovationLab,
 } from "@/content/ventures";
+import { useLocale } from "@/i18n/useLocale";
 
 gsap.registerPlugin(ScrollTrigger);
 
 export default function VenturesPage() {
+  const locale = useLocale();
   const containerRef = useRef<HTMLDivElement>(null);
   const productCardsRef = useRef<(HTMLDivElement | null)[]>([]);
   const innovationItemsRef = useRef<(HTMLDivElement | null)[]>([]);
 
-  const products = getSaaSProducts();
-  const innovationLab = getInnovationLab();
+  const products = getSaaSProducts(locale);
+  const innovationLab = getInnovationLab(locale);
 
   useEffect(() => {
     if (!containerRef.current) return;

@@ -12,21 +12,23 @@ import {
   getInsights,
   getInsightsByCategory,
 } from "@/content/insights";
+import { useLocale } from "@/i18n/useLocale";
 
 gsap.registerPlugin(ScrollTrigger);
 
 type InsightCategory = "articles" | "research" | "thought-leadership";
 
 export default function InsightsPage() {
+  const locale = useLocale();
   const containerRef = useRef<HTMLDivElement>(null);
   const articleCardsRef = useRef<(HTMLDivElement | null)[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<InsightCategory | "all">("all");
 
-  const allInsights = getInsights();
+  const allInsights = getInsights(locale);
   const displayedInsights =
     selectedCategory === "all"
       ? allInsights
-      : getInsightsByCategory(selectedCategory as InsightCategory);
+      : getInsightsByCategory(locale, selectedCategory as InsightCategory);
 
   const categories: { id: InsightCategory | "all"; label: string }[] = [
     { id: "all", label: "All" },

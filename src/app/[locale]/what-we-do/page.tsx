@@ -10,15 +10,17 @@ import TextAnimate from "@/components/textAnimate";
 import { CTASection } from "@/components/ctaSection";
 import { ArrowRight, Brain, Rocket, Cog } from "lucide-react";
 import { getServiceArms } from "@/content/services";
+import { useLocale } from "@/i18n/useLocale";
 
 gsap.registerPlugin(ScrollTrigger);
 
 export default function WhatWeDoPage() {
+  const locale = useLocale();
   const containerRef = useRef<HTMLDivElement>(null);
   const serviceCardsRef = useRef<(HTMLDivElement | null)[]>([]);
   const integrationCardsRef = useRef<(HTMLDivElement | null)[]>([]);
 
-  const services = getServiceArms();
+  const services = getServiceArms(locale);
   const icons = [Brain, Rocket, Cog];
   const serviceImages = ["strategy.jpg", "innovation.jpg", "tech.jpg"];
 

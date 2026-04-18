@@ -6,6 +6,7 @@ import ScrollTrigger from 'gsap/ScrollTrigger';
 import Link from 'next/link';
 import { ArrowRight, ArrowUpRight, Zap, Bot, ShoppingBag, BarChart3, GitBranch } from 'lucide-react';
 import { getVentures } from '@/content/ventures';
+import { useLocale } from '@/i18n/useLocale';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -17,13 +18,24 @@ const PRODUCT_ICONS: Record<string, typeof Zap> = {
   'mok-workflow': GitBranch,
 };
 
-const STATUS_CONFIG: Record<string, { label: string; color: string; pulse: boolean }> = {
+const STATUS_CONFIG_EN: Record<string, { label: string; color: string; pulse: boolean }> = {
   active: { label: 'Live', color: '#00C4AF', pulse: true },
+  launched: { label: 'Launched', color: '#00C4AF', pulse: true },
   'coming-soon': { label: 'Coming Soon', color: '#F59E0B', pulse: false },
   stealth: { label: 'In Development', color: '#6B7280', pulse: false },
 };
 
+const STATUS_CONFIG_AR: Record<string, { label: string; color: string; pulse: boolean }> = {
+  active: { label: 'نشط', color: '#00C4AF', pulse: true },
+  launched: { label: 'مُطلق', color: '#00C4AF', pulse: true },
+  'coming-soon': { label: 'قريباً', color: '#F59E0B', pulse: false },
+  stealth: { label: 'قيد التطوير', color: '#6B7280', pulse: false },
+};
+
 export default function VenturesShowcase() {
+  const locale = useLocale();
+  const isAr = locale === 'ar';
+  const STATUS_CONFIG = isAr ? STATUS_CONFIG_AR : STATUS_CONFIG_EN;
   const sectionRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
@@ -85,9 +97,10 @@ export default function VenturesShowcase() {
     };
   }, []);
 
-  const ventures = getVentures();
+  const ventures = getVentures(locale);
   const featured = ventures[0]; // MOK ERP
   const rest = ventures.slice(1);
+  const venturesHref = `/${locale}/ventures`;
 
   return (
     <section
@@ -111,17 +124,30 @@ export default function VenturesShowcase() {
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#00C4AF]/20 bg-[#00C4AF]/5 mb-6">
             <span className="w-1.5 h-1.5 rounded-full bg-[#00C4AF] animate-pulse" />
             <span className="text-xs font-semibold text-primary uppercase tracking-[0.15em] font-heading">
-              MOK Innovations
+              {isAr ? 'ابتكارات موك' : 'MOK Innovations'}
             </span>
           </div>
           <h2 className="text-4xl sm:text-5xl font-bold tracking-tight mb-4 font-heading">
-            Products We{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00C4AF] via-[#00A8FF] to-[#00C4AF]">
-              Build & Ship
-            </span>
+            {isAr ? (
+              <>
+                منتجات{' '}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00C4AF] via-[#00A8FF] to-[#00C4AF]">
+                  نبنيها ونُطلقها
+                </span>
+              </>
+            ) : (
+              <>
+                Products We{' '}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00C4AF] via-[#00A8FF] to-[#00C4AF]">
+                  Build & Ship
+                </span>
+              </>
+            )}
           </h2>
           <p className="text-lg text-muted max-w-2xl mx-auto">
-            Enterprise SaaS products born from real problems we solved for our clients. Now available as standalone platforms.
+            {isAr
+              ? 'منتجات SaaS للمؤسسات ولدت من مشاكل حقيقية حللناها لعملائنا. متوفرة الآن كمنصات مستقلة.'
+              : 'Enterprise SaaS products born from real problems we solved for our clients. Now available as standalone platforms.'}
           </p>
         </div>
 
@@ -158,7 +184,7 @@ export default function VenturesShowcase() {
                     </h3>
                     <p className="text-sm text-muted">{featured.tagline}</p>
                   </div>
-                  <div className="ml-auto flex items-center gap-2">
+                  <div className="ms-auto flex items-center gap-2">
                     {(() => {
                       const status = STATUS_CONFIG[featured.status] || STATUS_CONFIG.active;
                       return (
@@ -191,8 +217,8 @@ export default function VenturesShowcase() {
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-white transition-colors"
                   >
-                    Visit Platform
-                    <ArrowUpRight size={14} />
+                    {isAr ? 'زيارة المنصة' : 'Visit Platform'}
+                    <ArrowUpRight size={14} className="rtl:-scale-x-100" />
                   </a>
                 )}
               </div>
@@ -276,12 +302,14 @@ export default function VenturesShowcase() {
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:text-white transition-colors"
                     >
-                      Visit
-                      <ArrowUpRight size={12} />
+                      {isAr ? 'زيارة' : 'Visit'}
+                      <ArrowUpRight size={12} className="rtl:-scale-x-100" />
                     </a>
                   ) : (
                     <span className="text-xs text-muted/40 font-medium">
-                      {venture.status === 'stealth' ? 'In stealth mode' : 'Launching soon'}
+                      {isAr
+                        ? (venture.status === 'stealth' ? 'في وضع التخفي' : 'يُطلق قريباً')
+                        : (venture.status === 'stealth' ? 'In stealth mode' : 'Launching soon')}
                     </span>
                   )}
                 </div>
@@ -293,11 +321,11 @@ export default function VenturesShowcase() {
         {/* Bottom CTA */}
         <div className="text-center mt-12">
           <Link
-            href="/ventures"
+            href={venturesHref}
             className="inline-flex items-center gap-2 px-6 py-3 border border-border/80 rounded-lg font-semibold text-sm hover:bg-surface/40 transition-colors duration-300 btn-glow-outline"
           >
-            Explore All Ventures
-            <ArrowRight size={16} />
+            {isAr ? 'استكشف جميع المشاريع' : 'Explore All Ventures'}
+            <ArrowRight size={16} className="rtl:-scale-x-100" />
           </Link>
         </div>
       </div>

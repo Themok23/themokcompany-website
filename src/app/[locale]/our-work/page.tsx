@@ -9,21 +9,21 @@ import { SectionHeading } from "@/components/sectionHeading";
 import { ArrowUpRight } from "lucide-react";
 import { CTASection } from "@/components/ctaSection";
 import {
-  getFeaturedCaseStudies,
   getCaseStudies,
-  getFeaturedClients,
   getClientLogos,
 } from "@/content/portfolio";
+import { useLocale } from "@/i18n/useLocale";
 
 gsap.registerPlugin(ScrollTrigger);
 
 export default function OurWorkPage() {
+  const locale = useLocale();
   const containerRef = useRef<HTMLDivElement>(null);
   const caseStudyCardsRef = useRef<(HTMLDivElement | null)[]>([]);
   const clientCardsRef = useRef<(HTMLDivElement | null)[]>([]);
 
-  const caseStudies = getCaseStudies();
-  const clients = getClientLogos();
+  const caseStudies = getCaseStudies(locale);
+  const clients = getClientLogos(locale);
 
   useEffect(() => {
     if (!containerRef.current) return;

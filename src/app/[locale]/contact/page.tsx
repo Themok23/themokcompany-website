@@ -5,8 +5,10 @@ import gsap from "gsap";
 import { PageHero } from "@/components/pageHero";
 import { ArrowRight, Mail, MapPin } from "lucide-react";
 import { getSiteConfig } from "@/content/site";
+import { useLocale } from "@/i18n/useLocale";
 
 export default function ContactPage() {
+  const locale = useLocale();
   const formRef = useRef<HTMLDivElement>(null);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const [formData, setFormData] = useState({
@@ -18,7 +20,7 @@ export default function ContactPage() {
     message: "",
   });
 
-  const siteConfig = getSiteConfig();
+  const siteConfig = getSiteConfig(locale);
 
   const serviceOptions = [
     "Management Consultancy",

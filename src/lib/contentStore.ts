@@ -141,7 +141,7 @@ export function getHomeSectionDefs(): SectionDefinition[] {
       ],
       getDefaults: () => {
         const { getHomeHero } = require("@/content/home");
-        const d = getHomeHero();
+        const d = getHomeHero("en");
         return { title: d.title, subtitle: d.subtitle };
       },
     },
@@ -156,7 +156,7 @@ export function getHomeSectionDefs(): SectionDefinition[] {
       ],
       getDefaults: () => {
         const { getHomeWhoWeAre } = require("@/content/home");
-        const d = getHomeWhoWeAre();
+        const d = getHomeWhoWeAre("en");
         return { title: d.title, description: d.description, items: d.items || [] };
       },
     },
@@ -171,7 +171,7 @@ export function getHomeSectionDefs(): SectionDefinition[] {
       ],
       getDefaults: () => {
         const { getHomeArms } = require("@/content/home");
-        const d = getHomeArms();
+        const d = getHomeArms("en");
         return { title: d.title, description: d.description, items: d.items || [] };
       },
     },
@@ -186,7 +186,7 @@ export function getHomeSectionDefs(): SectionDefinition[] {
       ],
       getDefaults: () => {
         const { getHomeWhyMok } = require("@/content/home");
-        const d = getHomeWhyMok();
+        const d = getHomeWhyMok("en");
         return { title: d.title, description: d.description, items: d.items || [] };
       },
     },
@@ -201,7 +201,7 @@ export function getHomeSectionDefs(): SectionDefinition[] {
       ],
       getDefaults: () => {
         const { getHomeAudience } = require("@/content/home");
-        const d = getHomeAudience();
+        const d = getHomeAudience("en");
         return { title: d.title, description: d.description, items: d.items || [] };
       },
     },
@@ -215,7 +215,7 @@ export function getHomeSectionDefs(): SectionDefinition[] {
       ],
       getDefaults: () => {
         const { getHomeCTA } = require("@/content/home");
-        const d = getHomeCTA();
+        const d = getHomeCTA("en");
         return { title: d.title, subtitle: d.subtitle };
       },
     },
@@ -234,7 +234,7 @@ export function getAboutSectionDefs(): SectionDefinition[] {
       ],
       getDefaults: () => {
         const { getAboutHero } = require("@/content/about");
-        const d = getAboutHero();
+        const d = getAboutHero("en");
         return { title: d.title, subtitle: d.subtitle };
       },
     },
@@ -249,7 +249,7 @@ export function getAboutSectionDefs(): SectionDefinition[] {
       ],
       getDefaults: () => {
         const { getOurStory } = require("@/content/about");
-        const d = getOurStory();
+        const d = getOurStory("en");
         return { title: d.title, description: d.description, items: d.items || [] };
       },
     },
@@ -270,7 +270,7 @@ export function getServicesSectionDefs(): SectionDefinition[] {
       ],
       getDefaults: () => {
         const { getServiceArms } = require("@/content/services");
-        const arms = getServiceArms();
+        const arms = getServiceArms("en");
         const d = arms.find((a: { slug: string }) => a.slug === "management");
         return d ? { title: d.title, tagline: d.tagline, description: d.description, services: [...d.services] } : {};
       },
@@ -287,7 +287,7 @@ export function getServicesSectionDefs(): SectionDefinition[] {
       ],
       getDefaults: () => {
         const { getServiceArms } = require("@/content/services");
-        const arms = getServiceArms();
+        const arms = getServiceArms("en");
         const d = arms.find((a: { slug: string }) => a.slug === "innovations");
         return d ? { title: d.title, tagline: d.tagline, description: d.description, services: [...d.services] } : {};
       },
@@ -304,7 +304,7 @@ export function getServicesSectionDefs(): SectionDefinition[] {
       ],
       getDefaults: () => {
         const { getServiceArms } = require("@/content/services");
-        const arms = getServiceArms();
+        const arms = getServiceArms("en");
         const d = arms.find((a: { slug: string }) => a.slug === "technologies");
         return d ? { title: d.title, tagline: d.tagline, description: d.description, services: [...d.services] } : {};
       },
@@ -314,7 +314,7 @@ export function getServicesSectionDefs(): SectionDefinition[] {
 
 export function getPortfolioSectionDefs(): SectionDefinition[] {
   const { getCaseStudies } = require("@/content/portfolio");
-  const studies = getCaseStudies() as Array<{
+  const studies = getCaseStudies("en") as Array<{
     id: string;
     client: string;
     title: string;
@@ -361,7 +361,7 @@ export function getPortfolioSectionDefs(): SectionDefinition[] {
 
 export function getInsightsSectionDefs(): SectionDefinition[] {
   const { getInsights } = require("@/content/insights");
-  const articles = getInsights() as Array<{
+  const articles = getInsights("en") as Array<{
     id: string;
     title: string;
     excerpt: string;
@@ -396,7 +396,7 @@ export function getInsightsSectionDefs(): SectionDefinition[] {
 
 export function getVenturesSectionDefs(): SectionDefinition[] {
   const { getVentures } = require("@/content/ventures");
-  const ventures = getVentures() as Array<{
+  const ventures = getVentures("en") as Array<{
     id: string;
     name: string;
     tagline: string;
@@ -446,7 +446,7 @@ export function getContactSectionDefs(): SectionDefinition[] {
       ],
       getDefaults: () => {
         const { getSiteConfig } = require("@/content/site");
-        const d = getSiteConfig();
+        const d = getSiteConfig("en");
         return { email: d.email, location: d.location, tagline: d.tagline, description: d.description };
       },
     },
@@ -455,7 +455,7 @@ export function getContactSectionDefs(): SectionDefinition[] {
 
 export function getCareersSectionDefs(): SectionDefinition[] {
   const { getPositions, getCareersCulture } = require("@/content/careers");
-  const positions = getPositions() as Array<{
+  const positions = getPositions("en") as Array<{
     id: string;
     title: string;
     department: string;
@@ -463,7 +463,7 @@ export function getCareersSectionDefs(): SectionDefinition[] {
     type: string;
     description: string;
   }>;
-  const culture = getCareersCulture();
+  const culture = getCareersCulture("en");
 
   const positionDefs: SectionDefinition[] = positions.map((p) => ({
     id: `position-${p.id}`,

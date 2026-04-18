@@ -15,20 +15,22 @@ import {
   getPhilosophy,
   getApproach,
 } from "@/content/about";
+import { useLocale } from "@/i18n/useLocale";
 
 gsap.registerPlugin(ScrollTrigger);
 
 export default function AboutPage() {
+  const locale = useLocale();
   const containerRef = useRef<HTMLDivElement>(null);
   const storyImageRef = useRef<HTMLDivElement>(null);
   const storyItemsRef = useRef<(HTMLLIElement | null)[]>([]);
   const philosophyCardsRef = useRef<(HTMLDivElement | null)[]>([]);
   const approachCardsRef = useRef<(HTMLDivElement | null)[]>([]);
 
-  const hero = getAboutHero();
-  const story = getOurStory();
-  const philosophy = getPhilosophy();
-  const approach = getApproach();
+  const hero = getAboutHero(locale);
+  const story = getOurStory(locale);
+  const philosophy = getPhilosophy(locale);
+  const approach = getApproach(locale);
 
   useEffect(() => {
     if (!containerRef.current) return;

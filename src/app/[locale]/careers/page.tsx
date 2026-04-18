@@ -12,16 +12,18 @@ import {
   getPositions,
   getCareersCulture,
 } from "@/content/careers";
+import { useLocale } from "@/i18n/useLocale";
 
 gsap.registerPlugin(ScrollTrigger);
 
 export default function CareersPage() {
+  const locale = useLocale();
   const containerRef = useRef<HTMLDivElement>(null);
   const cultureItemsRef = useRef<(HTMLDivElement | null)[]>([]);
   const positionCardsRef = useRef<(HTMLDivElement | null)[]>([]);
 
-  const positions = getPositions();
-  const culture = getCareersCulture();
+  const positions = getPositions(locale);
+  const culture = getCareersCulture(locale);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -159,11 +161,11 @@ export default function CareersPage() {
                 </p>
 
                 <a
-                  href="/contact"
+                  href={`/${locale}/contact`}
                   className="inline-flex items-center gap-2 text-primary hover:text-white transition-colors font-semibold font-heading"
                 >
-                  Apply Now
-                  <ArrowRight className="w-4 h-4" />
+                  {locale === "ar" ? "قدّم الآن" : "Apply Now"}
+                  <ArrowRight className="w-4 h-4 rtl:-scale-x-100" />
                 </a>
               </div>
             ))}
