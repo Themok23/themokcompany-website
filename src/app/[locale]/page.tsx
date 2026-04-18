@@ -547,15 +547,15 @@ export default function Home() {
         ref={threeArmsRef}
         className="relative py-32 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto"
       >
-        {/* Scramble text decode effect */}
+        {/* Gradient opacity sweep - matches "Our Process" heading below */}
         <TextAnimate
           text={arms.title}
-          mode="scramble"
+          mode="gradient"
           tag="h2"
           className="text-4xl sm:text-5xl font-bold tracking-tight mb-4 text-center font-heading"
           scrollTrigger
-          triggerStart="top 70%"
-          stagger={0.04}
+          triggerStart="top 75%"
+          stagger={0.05}
         />
 
         <p className="arms-desc text-lg text-muted text-center mb-16 max-w-2xl mx-auto">
