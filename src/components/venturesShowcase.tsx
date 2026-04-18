@@ -38,6 +38,7 @@ export default function VenturesShowcase() {
   const STATUS_CONFIG = isAr ? STATUS_CONFIG_AR : STATUS_CONFIG_EN;
   const sectionRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
+  const headingRef = useRef<HTMLHeadingElement>(null);
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
@@ -46,6 +47,17 @@ export default function VenturesShowcase() {
     const hoverListeners: Array<{ el: HTMLDivElement; type: string; fn: () => void }> = [];
 
     const ctx = gsap.context(() => {
+      // Heading reveal
+      if (headingRef.current) {
+        gsap.fromTo(headingRef.current,
+          { opacity: 0, y: 30 },
+          {
+            opacity: 1, y: 0, duration: 0.8, ease: 'power2.out',
+            scrollTrigger: { trigger: headingRef.current, start: 'top 80%', toggleActions: 'play none none none' },
+          }
+        );
+      }
+
       // Staggered card reveals
       cardsRef.current.forEach((card) => {
         if (card) {
@@ -127,7 +139,7 @@ export default function VenturesShowcase() {
               {isAr ? 'ابتكارات موك' : 'MOK Innovations'}
             </span>
           </div>
-          <h2 className="text-4xl sm:text-5xl font-bold tracking-tight mb-4 font-heading">
+          <h2 ref={headingRef} className="text-4xl sm:text-5xl font-bold tracking-tight mb-4 font-heading opacity-0">
             {isAr ? (
               <>
                 منتجات{' '}
