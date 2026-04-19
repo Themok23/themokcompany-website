@@ -97,7 +97,7 @@ export default function CareersPage() {
             label={culture.title}
             title="Our Culture"
             description={culture.description}
-            animateMode="words"
+            animateMode="gradient"
           />
 
           {culture.items && culture.items.length > 0 && (

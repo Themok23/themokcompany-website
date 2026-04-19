@@ -108,7 +108,7 @@ export default function OurWorkPage() {
             label="Case Studies"
             title="Strategic outcomes that matter"
             description="A sample of how we deliver integrated solutions across enterprise clients."
-            animateMode="scramble"
+            animateMode="gradient"
           />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
@@ -179,7 +179,7 @@ export default function OurWorkPage() {
             title="Trusted by enterprise leaders"
             description="We partner with organizations pursuing ambitious digital transformation across industries."
             align="center"
-            animateMode="wave"
+            animateMode="gradient"
           />
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
