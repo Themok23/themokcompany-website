@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { useLocale } from "@/i18n/useLocale";
 
 interface CTASectionProps {
   title: string;
@@ -17,10 +18,18 @@ interface CTASectionProps {
 export function CTASection({
   title,
   description,
-  buttonLabel = "Get in Touch",
-  buttonHref = "/contact",
+  buttonLabel,
+  buttonHref,
   arrow = "right",
 }: CTASectionProps) {
+  const locale = useLocale();
+  const defaultLabel = locale === "ar" ? "تواصل معنا" : "Get in Touch";
+  const label = buttonLabel ?? defaultLabel;
+  const href = buttonHref ?? `/${locale}/contact`;
+  // If caller passed an internal non-localized href, prepend locale
+  const finalHref = href.startsWith("/") && !href.startsWith(`/${locale}/`) && href !== `/${locale}`
+    ? `/${locale}${href}`
+    : href;
   return (
     <section className="border-t border-border py-20 px-4 sm:px-6 lg:px-8 bg-surface/40 backdrop-blur-sm">
       <div className="max-w-4xl mx-auto text-center">
@@ -30,8 +39,8 @@ export function CTASection({
         <p className="text-lg text-muted mb-10 font-body">
           {description}
         </p>
-        <Button href={buttonHref} arrow={arrow}>
-          {buttonLabel}
+        <Button href={finalHref} arrow={arrow}>
+          {label}
         </Button>
       </div>
     </section>

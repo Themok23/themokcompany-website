@@ -15,7 +15,7 @@ export function SectionHeading({
   title,
   description,
   align = "left",
-  animateMode = "words",
+  animateMode = "gradient",
 }: SectionHeadingProps) {
   return (
     <div
@@ -31,11 +31,11 @@ export function SectionHeading({
         text={title}
         mode={animateMode}
         tag="h2"
-        className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-white leading-tight font-heading"
+        className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-white leading-tight font-heading"
         scrollTrigger
         triggerStart="top 75%"
-        duration={0.7}
-        stagger={0.04}
+        duration={1.2}
+        stagger={0.07}
       />
 
       {description && (
