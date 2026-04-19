@@ -502,7 +502,7 @@ export default function Home() {
               text={whoWeAre.title}
               mode="gradient"
               tag="h2"
-              className="text-4xl sm:text-5xl font-bold tracking-tight mb-8 font-heading"
+              className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight mb-8 font-heading"
               scrollTrigger
               triggerStart="top 70%"
               duration={1.2}
@@ -552,7 +552,7 @@ export default function Home() {
           text={arms.title}
           mode="gradient"
           tag="h2"
-          className="text-4xl sm:text-5xl font-bold tracking-tight mb-4 text-center font-heading"
+          className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight mb-4 text-center font-heading"
           scrollTrigger
           triggerStart="top 75%"
           duration={1.2}
@@ -612,7 +612,7 @@ export default function Home() {
             text="Our Process"
             mode="gradient"
             tag="h2"
-            className="text-4xl sm:text-5xl font-bold tracking-tight mb-4 font-heading"
+            className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight mb-4 font-heading"
             scrollTrigger
             triggerStart="top 75%"
             duration={1.2}
@@ -671,7 +671,7 @@ export default function Home() {
           text={whyMok.title}
           mode="gradient"
           tag="h2"
-          className="text-4xl sm:text-5xl font-bold tracking-tight mb-4 text-center font-heading"
+          className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight mb-4 text-center font-heading"
           scrollTrigger
           triggerStart="top 70%"
           duration={1.2}
@@ -734,7 +734,7 @@ export default function Home() {
           text={audience.title}
           mode="gradient"
           tag="h2"
-          className="text-4xl sm:text-5xl font-bold tracking-tight mb-16 text-center font-heading"
+          className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight mb-16 text-center font-heading"
           scrollTrigger
           triggerStart="top 70%"
           duration={1.2}
@@ -775,7 +775,7 @@ export default function Home() {
           text={cta.title ?? "Ready to build what's next?"}
           mode="gradient"
           tag="h2"
-          className="text-4xl sm:text-5xl font-bold tracking-tight mb-6 font-heading"
+          className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight mb-6 font-heading"
           scrollTrigger
           triggerStart="top 70%"
           duration={1.2}

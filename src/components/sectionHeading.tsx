@@ -31,7 +31,7 @@ export function SectionHeading({
         text={title}
         mode={animateMode}
         tag="h2"
-        className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-white leading-tight font-heading"
+        className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-white leading-tight font-heading"
         scrollTrigger
         triggerStart="top 75%"
         duration={1.2}
